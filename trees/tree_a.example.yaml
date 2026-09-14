@@ -1,0 +1,115 @@
+# Tree A — starter scaffold, NOT clinically approved.
+#
+# This encodes the worked example from docs/system-overview.html section 4:
+# culture gate -> renal gate -> allergy gate -> outcome.
+# All thresholds, codes, and the recommended agent name are synthetic
+# placeholders. Real values require clinical-lead sign-off (see
+# docs/mvp-plan-70-day.html, CDP-605 "Tree A with signed expected paths").
+#
+# This file exists so the executor, validator and compiler (CDP-601-604)
+# have one concrete target to build and test against from day one.
+
+schema_version: "1.0"
+tree_id: tree_a_demo
+version: "0.1.0"
+entry_node: culture_gate
+
+nodes:
+  culture_gate:
+    type: decision
+    requires:
+      - key: culture_result
+        value_type: enum
+        allowed_values: [positive, negative, pending, not_performed]
+        max_age_hours: 24          # SYNTHETIC — not a clinical policy
+        usable_values: [positive, negative]
+    predicate:
+      op: equals
+      evidence: culture_result
+      value: positive
+    on_true: renal_gate
+    on_false: negative_path
+    on_unavailable: review_evidence_culture
+
+  renal_gate:
+    type: decision
+    requires:
+      - key: serum_creatinine
+        value_type: number
+        unit: mg/dL
+        max_age_hours: 24         # SYNTHETIC
+        usable_values: null
+    predicate:
+      op: lte
+      evidence: serum_creatinine
+      value: 1.5                  # SYNTHETIC threshold
+    on_true: allergy_gate
+    on_false: renal_adjusted_path
+    on_unavailable: review_evidence_renal
+
+  allergy_gate:
+    type: decision
+    requires:
+      - key: allergy_class
+        value_type: enum
+        allowed_values: [penicillin_class, none_found, unresolved]
+        max_age_hours: null       # allergy history does not expire
+        usable_values: [penicillin_class, none_found]
+    predicate:
+      op: equals
+      evidence: allergy_class
+      value: penicillin_class
+    on_true: positive_path_avoid_penicillin
+    on_false: positive_path_standard
+    on_unavailable: review_evidence_allergy
+
+  review_evidence_culture:
+    type: review
+    reason: evidence_unavailable
+    resume_at: culture_gate
+
+  review_evidence_renal:
+    type: review
+    reason: evidence_unavailable
+    resume_at: renal_gate
+
+  review_evidence_allergy:
+    type: review
+    reason: evidence_unavailable
+    resume_at: allergy_gate
+
+  positive_path_avoid_penicillin:
+    type: terminal
+    output_code: DEMO_POSITIVE_AVOID_PENICILLIN
+    mandatory_review: true
+    # explanation template binds to: culture_result, serum_creatinine,
+    # allergy_class, and this output_code — see CDP-805
+
+  positive_path_standard:
+    type: terminal
+    output_code: DEMO_POSITIVE_STANDARD
+    mandatory_review: true
+
+  renal_adjusted_path:
+    type: terminal
+    output_code: DEMO_POSITIVE_RENAL_ADJUSTED
+    mandatory_review: true
+
+  negative_path:
+    type: terminal
+    output_code: DEMO_NEGATIVE_PATH
+    mandatory_review: true
+
+# Evidence-to-tool registry (CDP-1201 style). Static lookup only —
+# the ADK orchestrator reads this table, it does not infer routing.
+evidence_registry:
+  culture_result:
+    source: structured
+    adapter: bigquery_adapter_c
+  serum_creatinine:
+    source: structured
+    adapter: bigquery_adapter_p
+  allergy_class:
+    source: unstructured
+    tool: rlm_lightrag_extraction
+    skill: extract_allergy_class/v1

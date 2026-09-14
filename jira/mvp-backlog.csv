@@ -1,0 +1,669 @@
+Issue ID,Parent ID,Issue Type,Summary,Description,Labels,Story Points,Sprint,Assignee Role
+CDP-1,,Epic,"CDP-1 Governance, clinical safety & regulatory","Safety and compliance evidence produced as work, not paperwork at the end.",cdp,,,Lead engineer
+CDP-2,,Epic,CDP-2 Platform foundation,"Environments as code, CI/CD, and a deploy path to staging.",cdp,,,Engineer 4 · Platform
+CDP-3,,Epic,CDP-3 Source adapters & terminology,"Read-only, provenance-complete evidence from P and C in BigQuery.",cdp,,,Engineer 1 · Data
+CDP-4,,Epic,CDP-4 Evidence snapshot & validation,One consistent snapshot per run; absence is never a value.,cdp,,,Engineer 2 · Evidence & AI
+CDP-5,,Epic,CDP-5 AI evidence extraction,"One bounded, cited, abstaining ADK skill, improved by measurement.",cdp,,,Engineer 2 · Evidence & AI
+CDP-6,,Epic,CDP-6 Tree DSL & deterministic executor,Trees as immutable data evaluated by a pure function.,cdp,,,Engineer 3 · Logic & review UI
+CDP-7,,Epic,CDP-7 Durable run orchestration,Runs that survive restarts and duplicates and fail closed.,cdp,,,Engineer 4 · Platform
+CDP-8,,Epic,CDP-8 Clinician review,A review loop clinicians can independently verify.,cdp,,,Engineer 3 · Logic & review UI
+CDP-9,,Epic,"CDP-9 Security, access & audit",Role-based access and tamper-evident audit.,cdp,,,Engineer 3 · Logic & review UI
+CDP-10,,Epic,CDP-10 Observability,PHI-free telemetry and operational signals.,cdp,,,Engineer 2 · Evidence & AI
+CDP-11,,Epic,"CDP-11 Verification, test window & release","Prove it works, then decide; shadow mode follows in Phase 2.",cdp,,,Lead engineer
+CDP-12,,Epic,CDP-12 Enterprise data access & readiness,"Approved, least-privilege access to P and C in BigQuery, started on day one.",cdp,,,Lead engineer
+CDP-13,,Epic,"CDP-13 Agent engineering: Devin, Arize AX & CI","The build-measure-improve loop for agents, with guardrails for AI-written code.",cdp,,,Lead engineer
+CDP-101,CDP-1,Story,CDP-101 Intended-use statement sent to counsel,"As a clinical safety officer, I want a signed intended-use statement for Tree A sent to regulatory counsel in week one, so that the determination is ready before any real patient data (Phase 2).
+
+Acceptance criteria:
+- Names user, population, care setting and Tree A scope; no autonomous action or writeback
+- Assesses the non-device CDS criteria against the review-screen design
+- Counsel's determination tracked as a Phase 2 entry gate
+Addresses review findings: G-01",cdp mvp-70 lead g-01,3,CDP I1 (Days 1–7),Lead engineer
+CDP-103,CDP-1,Story,CDP-103 ADRs for MVP architecture choices,"As a engineering team, I want ADRs for single Postgres store, Postgres job queue, direct BigQuery reads via views, eager snapshot, and template explanations, so that the MVP's deviations from HLD v1.0 are explicit and reversible.
+
+Acceptance criteria:
+- Five ADRs with context, decision, consequences, and revisit trigger
+- Product owner and architecture sign-off recorded
+Addresses review findings: G-13, G-17, G-06, G-18",cdp mvp-70 lead g-13 g-17 g-06 g-18,3,CDP I2 (Days 8–14),Lead engineer
+CDP-102,CDP-1,Story,CDP-102 Hazard log v1 with hazard → control → test links,"As a clinical safety officer, I want every identified hazard linked to a control and a test ID, so that the Day-70 verification has a checklist that means something.
+
+Acceptance criteria:
+- Covers wrong patient, stale/superseded evidence, missing-as-negative, fabricated extraction, bypassed review, defective bundle, PHI egress, AI-written test tampering
+- Each hazard has severity, control, verifying test, and residual risk
+- CI fails if a referenced test ID disappears
+
+Depends on: CDP-101
+Addresses review findings: G-01",cdp mvp-70 lead g-01,5,CDP I3 (Days 15–21),Lead engineer
+CDP-104,CDP-1,Story,CDP-104 Threat model (lite),"As a security reviewer, I want a STRIDE pass over API, worker, BigQuery access, model calls, telemetry, and the Devin supply chain, so that controls exist for the threats we introduce.
+
+Acceptance criteria:
+- Covers document prompt injection, cross-patient access, PHI egress via spans/errors, over-privileged agent credentials
+- Each threat mapped to a story or accepted risk; reviewed by security
+Addresses review findings: G-14",cdp mvp-70 lead g-14,2,CDP I4 (Days 22–28),Lead engineer
+CDP-107,CDP-1,Story,CDP-107 Pre-registered Day-70 thresholds,"As a product owner, I want numeric pass criteria for the extraction skill and safety suite signed before the held-out set is frozen, so that the Day-70 decision isn't fitted to results.
+
+Acceptance criteria:
+- Zero false acceptances; 100% citation validity; field-accuracy target stated with sample size
+- Signed by clinical lead and product owner before CDP-1403
+
+Depends on: CDP-102
+Addresses review findings: G-08",cdp mvp-70 lead g-08,2,CDP I4 (Days 22–28),Lead engineer
+CDP-106,CDP-1,Story,CDP-106 Dual-annotation labeling protocol,"As a clinical lead, I want two independent annotators and adjudication for real-data evaluation, so that Phase 2 ground truth doesn't rest on one person.
+
+Acceptance criteria:
+- Guideline with worked examples; κ reported; not a gate until κ ≥ 0.8
+Addresses review findings: G-07",cdp phase-2 lead g-07,3,,Lead engineer
+CDP-202,CDP-2,Story,CDP-202 CI fast and integration lanes,"As a engineer, I want a fast lane (lint, strict types, unit and property tests, tree compiler, import rules, secret scan, SAST) and an integration lane (docker compose end-to-end on fixtures), so that every PR, human or Devin, gets the same checks within minutes.
+
+Acceptance criteria:
+- Fast lane under 10 minutes; integration lane under 20; both required on main
+- Recorded model responses used; no live model calls outside eval lanes
+- Branch protection and merge queue enabled
+
+Depends on: CDP-1301
+Addresses review findings: G-14",cdp mvp-70 e4 g-14,5,CDP I2 (Days 8–14),Engineer 4 · Platform
+CDP-201,CDP-2,Story,CDP-201 Dev and staging environments as code,"As a platform engineer, I want Terraform for dev and staging projects with VPC Service Controls and CMEK, so that environments are reproducible and synthetic-only in the MVP.
+
+Acceptance criteria:
+- No console-created resources
+- Dev project is the only one Devin credentials can reach
+- Prod project deferred to Phase 2 (CDP-209)
+Addresses review findings: G-14",cdp mvp-70 e4 g-14,3,CDP I3 (Days 15–21),Engineer 4 · Platform
+CDP-204,CDP-2,Story,CDP-204 Cloud SQL for PostgreSQL,"As a platform engineer, I want a Postgres instance with PITR and forward-only migrations, so that run state, job queue and audit share one transactional store.
+
+Acceptance criteria:
+- PITR enabled; migrations in CI
+- Audit role limited to INSERT and SELECT
+
+Depends on: CDP-201
+Addresses review findings: G-13, G-05",cdp mvp-70 e4 g-13 g-05,3,CDP I3 (Days 15–21),Engineer 4 · Platform
+CDP-203,CDP-2,Story,CDP-203 API and worker services on Cloud Run,"As a platform engineer, I want separate api and worker services with distinct least-privilege identities, so that the API cannot call model or source tools directly.
+
+Acceptance criteria:
+- Worker has no public ingress; min instances ≥ 1 for queue polling
+- Structured logs with PHI redaction
+
+Depends on: CDP-202, CDP-201",cdp mvp-70 e4,3,CDP I5 (Days 29–35),Engineer 4 · Platform
+CDP-208,CDP-2,Story,CDP-208 Staging deploy lane with manual approval,"As a product owner, I want every merged build deployable to staging with one approval and a recorded bundle hash, so that the Friday demo always runs on a known build.
+
+Acceptance criteria:
+- Deploy records git SHA, image digest and bundle hashes
+- Rollback to previous build in one step
+
+Depends on: CDP-202, CDP-201",cdp mvp-70 e4,3,CDP I7 (Days 43–49),Engineer 4 · Platform
+CDP-209,CDP-2,Story,CDP-209 Production project and perimeter,"As a platform engineer, I want a prod project with VPC-SC bridged to the data team's BigQuery perimeter, so that real patient data stays inside an approved boundary.
+
+Acceptance criteria:
+- No Devin access; JIT human access only
+
+Depends on: CDP-201
+Addresses review findings: G-14",cdp phase-2 e4 g-14,5,,Engineer 4 · Platform
+CDP-206,CDP-2,Story,CDP-206 Just-in-time production access,"As a privacy officer, I want no standing human access to prod data, so that engineer access to PHI is exceptional and logged.
+
+Acceptance criteria:
+- Approved, time-bound elevation with alert
+
+Depends on: CDP-209
+Addresses review findings: G-11",cdp phase-2 e4 g-11,2,,Engineer 4 · Platform
+CDP-207,CDP-2,Story,CDP-207 Attested production deploys,"As a security reviewer, I want SBOM, Binary Authorization, and signed attestations for prod, so that only verified images reach patients' data.
+
+Acceptance criteria:
+- Unattested images blocked
+
+Depends on: CDP-202
+Addresses review findings: G-14",cdp phase-2 e4 g-14,3,,Engineer 4 · Platform
+CDP-301,CDP-3,Story,CDP-301 Tree A evidence matrix,"As a data engineer, I want every Tree A evidence key mapped to BigQuery table/column, codes, units, time meaning, and gaps, so that adapters start from verified facts.
+
+Acceptance criteria:
+- Covers P and C tables; notes observed_at vs load time
+- Clinical lead reviewed
+Addresses review findings: G-09",cdp mvp-70 e1 g-09,5,CDP I1 (Days 1–7),Engineer 1 · Data
+CDP-302,CDP-3,Story,CDP-302 Terminology registry for Tree A concepts,"As a evidence engineer, I want each Tree A key bound to LOINC/SNOMED CT/RxNorm value sets with UCUM units, so that local code changes can't silently alter meaning.
+
+Acceptance criteria:
+- serum_creatinine binds LOINC 2160-0 and 14682-9 with a tested conversion
+- Out-of-set codes become unresolved
+- Registry versioned and pinned per run
+
+Depends on: CDP-301
+Addresses review findings: G-09",cdp mvp-70 e1 g-09,3,CDP I2 (Days 8–14),Engineer 1 · Data
+CDP-303,CDP-3,Story,CDP-303 Patient and encounter identity binding,"As a data engineer, I want exact identifier binding between the run and returned BigQuery rows, so that evidence can't attach to the wrong patient.
+
+Acceptance criteria:
+- Exact match only; mismatched rows rejected and logged
+- Tests for merged and split synthetic patients
+Addresses review findings: G-01",cdp mvp-70 e1 g-01,3,CDP I3 (Days 15–21),Engineer 1 · Data
+CDP-304,CDP-3,Story,CDP-304 P adapter (BigQuery),"As a evidence engineer, I want a read-only typed tool that queries P with parameters and returns provenance-complete candidates, so that structured values reach the validator without an LLM.
+
+Acceptance criteria:
+- Parameterized queries only; partition filter required; maximum-bytes-billed cap
+- Provenance: source row ID, row hash, load time, BigQuery job ID, retrieved_at
+- Quota/timeout errors become source-unavailable states
+- Runs against the dev dataset; real views arrive in Phase 2 (CDP-1204)
+
+Depends on: CDP-302, CDP-303, CDP-1208",cdp mvp-70 e1,8,CDP I4 (Days 22–28),Engineer 1 · Data
+CDP-305,CDP-3,Story,CDP-305 C adapter (BigQuery),"As a evidence engineer, I want C's clinical data through the same adapter framework, with distinct pending, negative and not-performed states, so that a pending culture is never read as negative.
+
+Acceptance criteria:
+- Preliminary/final/amended states handled; amendment yields a new candidate version
+- Each state traced to the executor by a fixture
+
+Depends on: CDP-304",cdp mvp-70 e1,3,CDP I5 (Days 29–35),Engineer 1 · Data
+CDP-306,CDP-3,Story,CDP-306 Timezone normalization,"As a evidence engineer, I want every timestamp resolved to UTC with the source's configured zone, so that freshness math is right across DST.
+
+Acceptance criteria:
+- Naïve timestamps without a configured zone become unresolved
+- DST boundary tests at the freshness limit
+
+Depends on: CDP-304
+Addresses review findings: G-20",cdp mvp-70 e1 g-20,3,CDP I6 (Days 36–42),Engineer 1 · Data
+CDP-307,CDP-3,Story,CDP-307 Bounded document retrieval tool,"As a evidence engineer, I want documents returned with hash, span offsets and size limits, so that the extraction skill cites exact locations.
+
+Acceptance criteria:
+- Oversized documents return a truncation status
+- Header identifiers checked against the run's patient
+
+Depends on: CDP-303, CDP-1209",cdp mvp-70 e1,3,CDP I7 (Days 43–49),Engineer 1 · Data
+CDP-308,CDP-3,Story,CDP-308 Source drift monitors,"As a on-call engineer, I want daily code, unit and missing-rate profiles per concept, so that upstream changes are caught before they affect recommendations.
+
+Acceptance criteria:
+- Alerts on unmapped codes and distribution shifts
+
+Depends on: CDP-304, CDP-305, CDP-1204
+Addresses review findings: G-10",cdp phase-2 e1 g-10,5,,Engineer 1 · Data
+CDP-309,CDP-3,Story,CDP-309 Real-data integration in the perimeter,"As a evidence engineer, I want adapters run against the approved real views, so that fixture assumptions are validated before shadow mode.
+
+Acceptance criteria:
+- Every fixture-vs-real discrepancy resolved
+
+Depends on: CDP-1204, CDP-304, CDP-305",cdp phase-2 e1,5,,Engineer 1 · Data
+CDP-401,CDP-4,Story,CDP-401 Snapshot schema v1,"As a evidence engineer, I want a versioned schema separating candidates from accepted values, with missing, pending, negative, not performed, unresolved and conflict states, so that absence of evidence is never encoded as a clinical value.
+
+Acceptance criteria:
+- JSON Schema and Pydantic from one source
+- Includes valid_as_of and expires_at
+Addresses review findings: G-06",cdp mvp-70 e2 g-06,5,CDP I1 (Days 1–7),Engineer 2 · Evidence & AI
+CDP-402,CDP-4,Story,CDP-402 Deterministic evidence validator,"As a evidence engineer, I want type, unit, provenance and freshness checks against a recorded evaluated_at, so that only usable evidence reaches predicates.
+
+Acceptance criteria:
+- Inclusive freshness limit; future-dated evidence rejected
+- UCUM conversion via registry only
+- Every rejection has a reason code
+
+Depends on: CDP-302, CDP-401",cdp mvp-70 e2,8,CDP I3 (Days 15–21),Engineer 2 · Evidence & AI
+CDP-403,CDP-4,Story,CDP-403 Eager snapshot assembly,"As a evidence engineer, I want every evidence key the pinned tree references resolved once at run start, so that all nodes on a path see the same evidence.
+
+Acceptance criteria:
+- One snapshot per run version
+- A failing source yields explicit states, not an aborted run
+
+Depends on: CDP-304, CDP-402
+Addresses review findings: G-06",cdp mvp-70 e1 g-06,3,CDP I6 (Days 36–42),Engineer 1 · Data
+CDP-404,CDP-4,Story,CDP-404 Conflict detection routed to review,"As a clinical reviewer, I want conflicting candidates sent to review with no automatic resolution, so that the system never silently picks between clinical values.
+
+Acceptance criteria:
+- Specimen, encounter and status matched before comparison
+- No averaging; no global source precedence
+
+Depends on: CDP-402
+Addresses review findings: G-18",cdp mvp-70 e1 g-18,3,CDP I7 (Days 43–49),Engineer 1 · Data
+CDP-405,CDP-4,Story,CDP-405 Revalidation before approval,"As a clinical reviewer, I want path evidence re-queried and row hashes compared before an approval commits, so that I never approve a recommendation built on superseded evidence.
+
+Acceptance criteria:
+- Changed hash → new snapshot, recompute, approval returns 409 with refresh
+- Revalidation at review creation deferred to Phase 2
+
+Depends on: CDP-403, CDP-801
+Addresses review findings: G-06",cdp mvp-70 e2 g-06,3,CDP I7 (Days 43–49),Engineer 2 · Evidence & AI
+CDP-501,CDP-5,Story,CDP-501 ADK spike with tracing,"As a evidence engineer, I want the pinned ADK version proven with ephemeral sessions, operation-ID idempotency, and OpenInference traces in AX, so that SDK assumptions are verified before we build on them.
+
+Acceptance criteria:
+- Findings written up for sessions, retries, and tracing
+- Spike skill (v0) produces a trace in the AX dev space
+
+Depends on: CDP-1304
+Addresses review findings: G-13",cdp mvp-70 e2 g-13,3,CDP I2 (Days 8–14),Engineer 2 · Evidence & AI
+CDP-502,CDP-5,Story,CDP-502 Extraction skill v1,"As a clinical reviewer, I want a versioned skill with instructions, I/O schemas, tool policy, validators and abstention rules, so that unstructured evidence becomes cited candidates without model authority.
+
+Acceptance criteria:
+- Every candidate cites a span in the hashed document or fails validation
+- Token, runtime and retry budgets; exhaustion yields unresolved
+- Merged only with an AX experiment against the main baseline
+
+Depends on: CDP-501, CDP-1305, CDP-1208",cdp mvp-70 e2,8,CDP I5 (Days 29–35),Engineer 2 · Evidence & AI
+CDP-503,CDP-5,Story,CDP-503 Adversarial extraction cases,"As a security reviewer, I want wrong-patient documents, embedded instructions, fabricated citations and malformed outputs in the eval set, so that attack and failure modes are regression-tested.
+
+Acceptance criteria:
+- All cases fail validation or remain unresolved
+- Run in the agent-eval lane
+
+Depends on: CDP-502",cdp mvp-70 e2,3,CDP I6 (Days 36–42),Engineer 2 · Evidence & AI
+CDP-505,CDP-5,Story,CDP-505 Skill iteration to Day-70 thresholds,"As a product owner, I want time-boxed error-analysis cycles on the extraction skill, so that quality improves by evidence, not by guesswork.
+
+Acceptance criteria:
+- Each change is one hypothesis, one experiment, one PR
+- Failure classes reported weekly on the scorecard
+- Stops at threshold or end of I8, whichever comes first
+
+Depends on: CDP-502, CDP-307, CDP-503, CDP-1308",cdp mvp-70 e2,5,CDP I8 (Days 50–56),Engineer 2 · Evidence & AI
+CDP-504,CDP-5,Story,CDP-504 Model registry and retirement alerts,"As a evidence engineer, I want pinned model IDs and retirement dates with 90-day alerts, so that forced migrations trigger re-validation.
+
+Acceptance criteria:
+- Served model ID recorded on each extraction
+
+Depends on: CDP-502
+Addresses review findings: G-21",cdp phase-2 e2 g-21,2,,Engineer 2 · Evidence & AI
+CDP-601,CDP-6,Story,CDP-601 Tree schema and graph compiler,"As a logic engineer, I want YAML trees validated and compiled into a checked graph, so that invalid trees fail at publish time.
+
+Acceptance criteria:
+- Rejects unreachable nodes, unknown operators, missing targets, ambiguity, and cycles other than review resume
+- Safe loader only",cdp mvp-70 e3,8,CDP I1 (Days 1–7),Engineer 3 · Logic & review UI
+CDP-602,CDP-6,Story,CDP-602 Typed operator library,"As a logic engineer, I want comparison, membership and Boolean operators with versioned boundary semantics, so that thresholds behave exactly as approved.
+
+Acceptance criteria:
+- Type mismatch is an error
+- Below/at/above boundary tests
+
+Depends on: CDP-601",cdp mvp-70 e3,5,CDP I2 (Days 8–14),Engineer 3 · Logic & review UI
+CDP-603,CDP-6,Story,CDP-603 Pure node evaluation,"As a auditor, I want evaluate_node as a pure function of tree, node, snapshot and evaluated_at, so that identical inputs always give the identical next node.
+
+Acceptance criteria:
+- Property-based determinism tests
+- Import linter forbids I/O and LLM packages in the executor
+
+Depends on: CDP-602",cdp mvp-70 e3,5,CDP I3 (Days 15–21),Engineer 3 · Logic & review UI
+CDP-604,CDP-6,Story,CDP-604 Immutable bundles with status,"As a clinical lead, I want trees published as hashed bundles with owner, approver ≠ author, guideline refs and status, so that every run pins exactly what it executed.
+
+Acceptance criteria:
+- Publish fails without approver or per-node guideline reference
+- Status ACTIVE/SUSPENDED/RETIRED is the only mutable field
+
+Depends on: CDP-601
+Addresses review findings: G-15",cdp mvp-70 e3 g-15,3,CDP I3 (Days 15–21),Engineer 3 · Logic & review UI
+CDP-605,CDP-6,Story,CDP-605 Tree A with signed expected paths,"As a clinical lead, I want Tree A in YAML with clinician-approved expected paths as CI fixtures, so that every approved path is a regression test.
+
+Acceptance criteria:
+- Every terminal node and gate covered
+- Clinical lead signs the fixture set by day 28
+
+Depends on: CDP-301, CDP-604",cdp mvp-70 e3,5,CDP I4 (Days 22–28),Engineer 3 · Logic & review UI
+CDP-607,CDP-6,Story,CDP-607 Kill switch and recall query,"As a clinical safety officer, I want to suspend a bundle and halt in-flight runs at their next step, so that a defective tree stops within minutes.
+
+Acceptance criteria:
+- SUSPENDED → HALTED_SAFETY with banner
+- Recall query by bundle and date range
+- Suspend-to-halt under 5 minutes in tests
+
+Depends on: CDP-604, CDP-701
+Addresses review findings: G-03",cdp mvp-70 e3 g-03,5,CDP I5 (Days 29–35),Engineer 3 · Logic & review UI
+CDP-606,CDP-6,Story,CDP-606 Replay tool,"As a auditor, I want to re-execute a run from stored snapshots and original evaluated_at, so that recorded paths are provably reproducible.
+
+Acceptance criteria:
+- Replay equals audit exactly
+
+Depends on: CDP-902, CDP-603
+Addresses review findings: G-21",cdp phase-2 e3 g-21,3,,Engineer 3 · Logic & review UI
+CDP-608,CDP-6,Story,CDP-608 Cross-tree regression gate,"As a lead engineer, I want path suites for all onboarded trees gating merges, so that Tree B can't silently change Tree A.
+
+Acceptance criteria:
+- Any path diff blocks merge
+
+Depends on: CDP-605",cdp phase-2 e3,3,,Engineer 3 · Logic & review UI
+CDP-701,CDP-7,Story,CDP-701 Run state machine,"As a platform engineer, I want an explicit transition table including EXPIRED and HALTED_SAFETY, so that no run reaches an undefined state.
+
+Acceptance criteria:
+- Illegal transitions tested exhaustively
+- One active run per patient, encounter and tree
+
+Depends on: CDP-204
+Addresses review findings: G-16",cdp mvp-70 e4 g-16,5,CDP I4 (Days 22–28),Engineer 4 · Platform
+CDP-702,CDP-7,Story,CDP-702 Run API with idempotency,"As a clinical reviewer, I want POST /v1/runs and GET /v1/runs/{id} with idempotency keys, so that retries never create duplicate runs.
+
+Acceptance criteria:
+- Changed payload under same key → 409; 24 h key TTL
+- Provisional vs reviewed output labelled
+
+Depends on: CDP-701
+Addresses review findings: G-16",cdp mvp-70 e4 g-16,3,CDP I4 (Days 22–28),Engineer 4 · Platform
+CDP-703,CDP-7,Story,CDP-703 Postgres job queue with revision-checked commits,"As a platform engineer, I want steps claimed with FOR UPDATE SKIP LOCKED and committed with the transition, audit event, and next job in one transaction, so that work is never lost or double-committed.
+
+Acceptance criteria:
+- UPDATE … WHERE revision = expected; zero rows is a safe no-op
+- Abandoned claims reclaimed after timeout
+
+Depends on: CDP-204, CDP-701, CDP-902
+Addresses review findings: G-13, G-17",cdp mvp-70 e4 g-13 g-17,5,CDP I5 (Days 29–35),Engineer 4 · Platform
+CDP-704,CDP-7,Story,CDP-704 Worker loop with bounded retries,"As a on-call engineer, I want one bounded step per claim with exponential backoff, so that failures become visible states.
+
+Acceptance criteria:
+- Exhausted retries → FAILED with reason
+- Killing the worker at any point leaves a consistent run
+
+Depends on: CDP-703",cdp mvp-70 e4,3,CDP I6 (Days 36–42),Engineer 4 · Platform
+CDP-705,CDP-7,Story,CDP-705 Fail-closed unavailable state,"As a clinical reviewer, I want a clear “No recommendation — follow standard pathway” state when anything is unavailable, so that a partial path is never mistaken for a recommendation.
+
+Acceptance criteria:
+- Partial paths never rendered as recommendations
+- Downtime procedure drafted with clinical lead
+
+Depends on: CDP-704
+Addresses review findings: G-05",cdp mvp-70 e4 g-05,3,CDP I7 (Days 43–49),Engineer 4 · Platform
+CDP-805,CDP-8,Story,CDP-805 Deterministic explanation templates,"As a clinical reviewer, I want plain-language summaries from approved templates per output code, so that explanations can't contradict the recorded path.
+
+Acceptance criteria:
+- Fields bound only to recorded evidence and path
+- Template text approved by clinical lead
+
+Depends on: CDP-605
+Addresses review findings: G-18",cdp mvp-70 e3 g-18,3,CDP I4 (Days 22–28),Engineer 3 · Logic & review UI
+CDP-801,CDP-8,Story,CDP-801 Review action API,"As a clinical reviewer, I want to approve, reject or cancel against an exact run revision, so that my action applies to what I actually saw.
+
+Acceptance criteria:
+- Expected revision required; stale → 409
+- Reviewer identity from token only; duplicates rejected
+- Evidence problems end the run as “insufficient evidence”
+
+Depends on: CDP-701, CDP-901",cdp mvp-70 e4,5,CDP I6 (Days 36–42),Engineer 4 · Platform
+CDP-803,CDP-8,Story,CDP-803 Review screen,"As a clinical reviewer, I want evidence with provenance, the path with guideline references, and review reasons on one screen, so that I can verify the basis of the recommendation myself.
+
+Acceptance criteria:
+- Each value links to its source row and observed time with zone label
+- Missing, pending and conflicting evidence visually distinct
+- Output labelled PROVISIONAL until approved
+
+Depends on: CDP-801, CDP-605
+Addresses review findings: G-01",cdp mvp-70 e3 g-01,8,CDP I6 (Days 36–42),Engineer 3 · Logic & review UI
+CDP-806,CDP-8,Story,CDP-806 Approval gating on flagged evidence,"As a clinical safety officer, I want approve disabled until each flagged evidence item has been opened, so that review can't be clicked through blind.
+
+Acceptance criteria:
+- Gate enforced server-side too
+
+Depends on: CDP-803
+Addresses review findings: G-12",cdp mvp-70 e3 g-12,2,CDP I7 (Days 43–49),Engineer 3 · Logic & review UI
+CDP-808,CDP-8,Story,CDP-808 Review screen iteration from demo feedback,"As a clinical reviewer, I want a budgeted iteration on the review screen after the first clinician demos, so that the UI reflects how clinicians actually review.
+
+Acceptance criteria:
+- Top feedback items from I6 demo fixed or logged
+
+Depends on: CDP-803
+Addresses review findings: G-12",cdp mvp-70 e3 g-12,3,CDP I7 (Days 43–49),Engineer 3 · Logic & review UI
+CDP-804,CDP-8,Story,CDP-804 Evidence resolution by clinician,"As a clinical reviewer, I want to supply a sourced value with rationale, so that missing facts can be resolved without approving output.
+
+Acceptance criteria:
+- New snapshot version and recompute
+
+Depends on: CDP-803, CDP-405",cdp phase-2 e3,5,,Engineer 3 · Logic & review UI
+CDP-802,CDP-8,Story,CDP-802 Review expiry,"As a clinical safety officer, I want review tasks that expire without implied approval, so that stale recommendations don't linger.
+
+Acceptance criteria:
+- Expired run requires a new run
+
+Depends on: CDP-801
+Addresses review findings: G-16",cdp phase-2 e4 g-16,2,,Engineer 4 · Platform
+CDP-807,CDP-8,Story,CDP-807 Automation-bias telemetry,"As a clinical safety officer, I want dwell-time and approval-rate monitoring with alerts, so that rubber-stamping is detected.
+
+Acceptance criteria:
+- Thresholds agreed with clinical lead
+
+Depends on: CDP-806
+Addresses review findings: G-12",cdp phase-2 e3 g-12,2,,Engineer 3 · Logic & review UI
+CDP-809,CDP-8,Story,"CDP-809 Worklist and start-run dialog (S1, S2)","As a clinical reviewer, I want a worklist of my patients' Tree A runs with plain-language statuses and a one-step start, so that I can find cases that need me and start a run without duplicates.
+
+Acceptance criteria:
+- Lists only runs within the user's care assignment
+- Statuses: needs review, gathering evidence, no recommendation, approved, rejected, halted
+- Starting an existing active run opens it instead
+
+Depends on: CDP-702, CDP-901",cdp mvp-70 e3,3,CDP I6 (Days 36–42),Engineer 3 · Logic & review UI
+CDP-810,CDP-8,Story,CDP-810 Outcome and audit timeline (S5),"As a auditor, I want a read-only timeline of every event on a run with chain hashes, so that anyone reviewing a case can see exactly what happened and verify it.
+
+Acceptance criteria:
+- Shows snapshot versions, gate results, evidence opened, revalidation and decision
+- Each event shows its hash and previous hash
+
+Depends on: CDP-902, CDP-803
+Addresses review findings: G-04",cdp mvp-70 e3 g-04,2,CDP I7 (Days 43–49),Engineer 3 · Logic & review UI
+CDP-811,CDP-8,Story,CDP-811 Trees and skills admin screen (S6),"As a clinical safety officer, I want a screen to see bundle status, suspend with a reason, and open the recall list, so that I can use the kill switch without asking an engineer.
+
+Acceptance criteria:
+- Only safety_officer and clinical_admin roles can suspend
+- Suspension requires a reason and is audited
+- Recall list shows affected runs and approved recommendations
+
+Depends on: CDP-607, CDP-901
+Addresses review findings: G-03",cdp mvp-70 e4 g-03,2,CDP I8 (Days 50–56),Engineer 4 · Platform
+CDP-902,CDP-9,Story,CDP-902 Append-only hash-chained audit,"As a auditor, I want audit events that can't be updated or deleted and are hash-chained, so that tampering is detectable.
+
+Acceptance criteria:
+- sha256(prev_hash ∥ payload) per event
+- Test proves no UPDATE/DELETE grant
+- Written in the same transaction as the transition
+
+Depends on: CDP-204
+Addresses review findings: G-04",cdp mvp-70 e1 g-04,5,CDP I5 (Days 29–35),Engineer 1 · Data
+CDP-901,CDP-9,Story,CDP-901 Sign-in and roles (staging),"As a clinical reviewer, I want sign-in via IAP/OIDC with roles and a patient check against a synthetic care-assignment table, so that access control is real from the first clinician demo.
+
+Acceptance criteria:
+- Roles: clinical_reviewer, clinical_admin, safety_officer, engineer_readonly
+- Unauthorized patient access denied by test
+- Real care-relationship source and break-glass in Phase 2
+
+Depends on: CDP-203, CDP-1209
+Addresses review findings: G-11",cdp mvp-70 e3 g-11,3,CDP I5 (Days 29–35),Engineer 3 · Logic & review UI
+CDP-903,CDP-9,Story,CDP-903 WORM audit export,"As a auditor, I want hourly export to a Bucket Lock bucket plus chain verification, so that audit survives a compromised database.
+
+Acceptance criteria:
+- Verification failure pages on-call
+
+Depends on: CDP-902
+Addresses review findings: G-04",cdp phase-2 e1 g-04,3,,Engineer 1 · Data
+CDP-904,CDP-9,Story,CDP-904 PHI access log,"As a privacy officer, I want every view of patient data logged, so that we can answer who looked at which patient.
+
+Acceptance criteria:
+- Report by patient and by user
+
+Depends on: CDP-901
+Addresses review findings: G-04, G-11",cdp phase-2 e3 g-04 g-11,3,,Engineer 3 · Logic & review UI
+CDP-905,CDP-9,Story,CDP-905 Care-relationship source and break-glass,"As a clinical reviewer, I want access checks against the real care-team source with audited break-glass, so that access matches real clinical responsibility.
+
+Acceptance criteria:
+- Break-glass alerts the safety officer
+
+Depends on: CDP-901, CDP-1209
+Addresses review findings: G-11",cdp phase-2 e3 g-11,3,,Engineer 3 · Logic & review UI
+CDP-1001,CDP-10,Story,CDP-1001 PHI-leak test on telemetry,"As a privacy officer, I want an attribute allowlist processor and a CI test that injects PHI-shaped values, so that nothing that would be PHI can reach Arize once real data arrives.
+
+Acceptance criteria:
+- Unknown attributes and exception messages dropped for staging/prod spaces
+- CI fails if injected values reach the exporter
+
+Depends on: CDP-1304
+Addresses review findings: G-02",cdp mvp-70 e2 g-02,3,CDP I6 (Days 36–42),Engineer 2 · Evidence & AI
+CDP-1004,CDP-10,Story,CDP-1004 Operational alerts and runbooks,"As a on-call engineer, I want alerts for stuck runs, retries, audit write failures, rejection spikes, so that failures reach a person.
+
+Acceptance criteria:
+- Each alert has a runbook
+
+Depends on: CDP-704",cdp phase-2 e4,3,,Engineer 4 · Platform
+CDP-1107,CDP-11,Story,CDP-1107 Scripted UAT case pack,"As a clinical lead, I want 25 scripted synthetic cases covering normal, pending, stale, conflicting and adversarial situations, so that UAT tests the hard cases, not just the happy path.
+
+Acceptance criteria:
+- Each case has expected path, expected screen state, and hazard link
+- Clinical lead approved
+
+Depends on: CDP-605",cdp mvp-70 e1,3,CDP I8 (Days 50–56),Engineer 1 · Data
+CDP-1101,CDP-11,Story,CDP-1101 Fault-injection suite,"As a lead engineer, I want automated crash-before/after-commit, duplicate claim, duplicate action and concurrent worker tests, so that durability claims are proven.
+
+Acceptance criteria:
+- Zero duplicated committed transitions over 500 randomized runs
+
+Depends on: CDP-703, CDP-801
+Addresses review findings: G-05, G-17",cdp mvp-70 e4 g-05 g-17,3,CDP I8 (Days 50–56),Engineer 4 · Platform
+CDP-1401,CDP-11,Story,CDP-1401 System verification against the hazard log,"As a clinical safety officer, I want every MVP hazard control's test executed with evidence attached, so that the Day-70 decision rests on traceable evidence.
+
+Acceptance criteria:
+- All controls verified or residual risk recorded
+- Fault-injection suite green
+
+Depends on: CDP-102, CDP-1101
+Addresses review findings: G-01",cdp test-window lead g-01,3,CDP Test window (Days 61–70),Lead engineer
+CDP-109,CDP-11,Story,CDP-109 Clinician UAT,"As a clinical reviewer, I want at least three clinicians to work the 25 scripted cases in staging, so that the primary safety control works for real users.
+
+Acceptance criteria:
+- No open critical usability issues
+- Findings logged as hazards or Phase 2 stories
+
+Depends on: CDP-803, CDP-1107
+Addresses review findings: G-12",cdp test-window e3 g-12,3,CDP Test window (Days 61–70),Engineer 3 · Logic & review UI
+CDP-1402,CDP-11,Story,CDP-1402 Held-out evaluation report,"As a product owner, I want the frozen held-out run compared with pre-registered thresholds, so that extraction quality is known, not assumed.
+
+Acceptance criteria:
+- Run by the restricted release job
+- Per-slice results and failure classes
+
+Depends on: CDP-1403, CDP-505, CDP-107
+Addresses review findings: G-08",cdp test-window e2 g-08,3,CDP Test window (Days 61–70),Engineer 2 · Evidence & AI
+CDP-1405,CDP-11,Story,CDP-1405 Data traceability check,"As a auditor, I want every evidence value on UAT runs traced from BigQuery row to snapshot to screen, so that provenance is proven end to end.
+
+Acceptance criteria:
+- Row hash, job ID and observed time match for every sampled value
+
+Depends on: CDP-1107, CDP-403",cdp test-window e1,3,CDP Test window (Days 61–70),Engineer 1 · Data
+CDP-1103,CDP-11,Story,CDP-1103 Restore test,"As a on-call engineer, I want a timed PITR restore of staging, so that recovery works before real data exists.
+
+Acceptance criteria:
+- Restore time recorded; runbook updated
+
+Depends on: CDP-204
+Addresses review findings: G-05",cdp test-window e4 g-05,2,CDP Test window (Days 61–70),Engineer 4 · Platform
+CDP-1106,CDP-11,Story,CDP-1106 Day-70 decision,"As a product owner, I want a documented decision: start Phase 2, fix-and-retest, or stop, so that the next commitment is based on evidence.
+
+Acceptance criteria:
+- Exit criteria scored with evidence links
+- Phase 2 re-estimated with access status
+
+Depends on: CDP-1401, CDP-109, CDP-1402, CDP-1103, CDP-1405",cdp test-window lead,2,CDP Test window (Days 61–70),Lead engineer
+CDP-1102,CDP-11,Story,CDP-1102 Security review and pen test,"As a security reviewer, I want an independent review before real data, so that vulnerabilities are closed before shadow mode.
+
+Acceptance criteria:
+- No open critical/high findings
+
+Depends on: CDP-901, CDP-1001, CDP-104
+Addresses review findings: G-14",cdp phase-2 lead g-14,3,,Lead engineer
+CDP-1105,CDP-11,Story,CDP-1105 Shadow evaluation protocol,"As a clinical lead, I want sampling, concordance measure and discordance review defined, so that pilot entry is measured.
+
+Acceptance criteria:
+- Signed before shadow starts
+Addresses review findings: G-23",cdp phase-2 lead g-23,3,,Lead engineer
+CDP-1104,CDP-11,Story,CDP-1104 Shadow mode in production,"As a clinical safety officer, I want real-patient runs with outputs hidden from clinicians, so that we measure without influencing care.
+
+Acceptance criteria:
+- Feature flag guarantees no clinician-facing output
+
+Depends on: CDP-1102, CDP-1105, CDP-309, CDP-1210, CDP-209
+Addresses review findings: G-23",cdp phase-2 e4 g-23,3,,Engineer 4 · Platform
+CDP-1109,CDP-11,Story,CDP-1109 Go/no-go for supervised pilot,"As a product owner, I want a decision against shadow results and dual-annotated evals, so that pilot entry is defensible.
+
+Acceptance criteria:
+- Clinical, safety and security sign-offs
+
+Depends on: CDP-1104, CDP-1003",cdp phase-2 lead,2,,Lead engineer
+CDP-1003,CDP-11,Story,CDP-1003 Dual-annotated real-data eval set,"As a clinical safety officer, I want a de-identified eval set labeled by two clinicians, so that real-world extraction quality is measured.
+
+Acceptance criteria:
+- κ reported; stays inside the perimeter
+
+Depends on: CDP-106, CDP-107, CDP-1305
+Addresses review findings: G-07, G-08",cdp phase-2 e2 g-07 g-08,5,,Engineer 2 · Evidence & AI
+CDP-1201,CDP-12,Story,CDP-1201 Access request pack for BigQuery P and C,"As a lead engineer, I want one pack naming data owner, cloud platform, privacy and InfoSec approvers with exact grants, so that approvals run in parallel from day one.
+
+Acceptance criteria:
+- Purpose, tables/columns, row scope, grants, data flow, retention
+- Submitted in week 1; status reviewed every Tuesday",cdp mvp-70 lead,3,CDP I1 (Days 1–7),Lead engineer
+CDP-1202,CDP-12,Story,CDP-1202 Minimum-necessary data specification,"As a privacy officer, I want exact tables, columns and row filters Tree A needs, each tied to an evidence key, so that requests are approvable and least-privilege.
+
+Acceptance criteria:
+- No column without an evidence key
+- Metadata-only access requested first
+
+Depends on: CDP-301
+Addresses review findings: G-11",cdp mvp-70 e1 g-11,3,CDP I2 (Days 8–14),Engineer 1 · Data
+CDP-1209,CDP-12,Story,CDP-1209 Identify document and care-team sources,"As a lead engineer, I want the systems holding documents and care-team assignments identified with owners, so that hidden integrations are scoped early.
+
+Acceptance criteria:
+- If no document source exists, re-scope CDP-5 at Day 30",cdp mvp-70 lead,2,CDP I2 (Days 8–14),Lead engineer
+CDP-1208,CDP-12,Story,CDP-1208 Dev dataset and fixtures on real schemas,"As a engineer, I want a BigQuery dev dataset mirroring P and C schemas with synthetic rows, including amended, preliminary, missing-unit and local-code cases, so that humans and Devin build against realistic shapes without PHI.
+
+Acceptance criteria:
+- Schemas from INFORMATION_SCHEMA; rows synthetic
+- Refreshed when source schemas change
+
+Depends on: CDP-1202",cdp mvp-70 e1,3,CDP I3 (Days 15–21),Engineer 1 · Data
+CDP-1203,CDP-12,Story,CDP-1203 Freshness and history gate for P and C,"As a clinical lead, I want measured load lag from specimen time to BigQuery, culture pending→final update lag, and whether corrections overwrite rows, so that we know by Day 30 whether BigQuery can meet Tree A's freshness rules.
+
+Acceptance criteria:
+- p50/p95 lag from load-job history and sampled metadata
+- If p95 lag exceeds a freshness limit, decision at Day 30
+
+Depends on: CDP-1202
+Addresses review findings: G-06",cdp mvp-70 e1 g-06,3,CDP I3 (Days 15–21),Engineer 1 · Data
+CDP-1204,CDP-12,Story,CDP-1204 Authorized views on real P and C,"As a platform engineer, I want authorized views over real tables readable only by the worker identity, so that real data is reachable with least privilege.
+
+Acceptance criteria:
+- Base-table query denied by test
+- Stretch: pulled into I6 if approved by Day 30
+
+Depends on: CDP-1201, CDP-1202, CDP-201
+Addresses review findings: G-11, G-14",cdp phase-2 e4 g-11 g-14,5,,Engineer 4 · Platform
+CDP-1210,CDP-12,Story,CDP-1210 Production data validation,"As a clinical safety officer, I want prod query results reconciled with source application screens for a sample, so that shadow mode runs on verified data.
+
+Acceptance criteria:
+- Discrepancies logged as hazards
+
+Depends on: CDP-309
+Addresses review findings: G-10",cdp phase-2 e1 g-10,3,,Engineer 1 · Data
+CDP-1301,CDP-13,Story,CDP-1301 Devin-ready development environment,"As a engineer, I want make dev, make test and make eval-smoke working from a clean machine, with docker compose Postgres, fixture adapters, and recorded model responses, so that Devin and humans run the same checks locally.
+
+Acceptance criteria:
+- Fresh clone to green tests under 15 minutes
+- Devin Knowledge/Playbooks: implement story, add eval case, fix failing eval
+- Architecture rules in the repo instructions: no LLM in executor, no eval(), never edit expected paths
+Addresses review findings: G-22",cdp mvp-70 e4 g-22,5,CDP I1 (Days 1–7),Engineer 4 · Platform
+CDP-1302,CDP-13,Story,CDP-1302 Guardrails for AI-written code,"As a lead engineer, I want enforced rules for Devin: dev-only credentials, no merge rights, protected test oracles, PR size limit, labels and Jira links, so that speed from Devin doesn't erode safety.
+
+Acceptance criteria:
+- CODEOWNERS: clinical lead on trees/expected paths/golden sets; two humans on executor/, validator/, authz/
+- Devin credentials reach only the dev project; no access to holdout, staging or prod
+- PRs over 400 changed lines (excluding generated) fail a check; ai-authored label and Devin session link required
+- Definition of Done in PR template: tests, hazard ID, AX link if skill changed
+Addresses review findings: G-22",cdp mvp-70 lead g-22,3,CDP I1 (Days 1–7),Lead engineer
+CDP-1304,CDP-13,Story,CDP-1304 Arize AX spaces and ADK tracing,"As a evidence engineer, I want AX spaces for dev, staging and a restricted holdout, with OpenInference ADK tracing and custom spans, so that every agent run is inspectable from day 8.
+
+Acceptance criteria:
+- Spans carry git_sha, bundle_hash, skill_version, model_id, run hash
+- Devin API key scoped to cdp-dev only
+- Prod space created in Phase 2 with structural spans only",cdp mvp-70 e2,3,CDP I2 (Days 8–14),Engineer 2 · Evidence & AI
+CDP-1305,CDP-13,Story,CDP-1305 Code evaluators and agent-eval PR lane,"As a product owner, I want field, unit, timestamp, citation-validity, abstention and false-acceptance evaluators running as an AX experiment on every skill/prompt/model PR, so that agent changes are measured against main before merging.
+
+Acceptance criteria:
+- Golden set v1 (≥ 40 clinician-reviewed synthetic cases) in AX
+- Gate: zero false acceptances, 100% citation validity, accuracy ≥ baseline − 2 points
+- Experiment link and delta table posted to the PR
+
+Depends on: CDP-1304, CDP-401, CDP-202
+Addresses review findings: G-08",cdp mvp-70 e2 g-08,6,CDP I4 (Days 22–28),Engineer 2 · Evidence & AI
+CDP-1308,CDP-13,Story,CDP-1308 Failure-to-regression loop,"As a clinical lead, I want a one-command path from a failing trace to a reviewed regression case, so that every failure makes the eval set stronger.
+
+Acceptance criteria:
+- Case added by PR with clinical lead approval
+- Failure class tagged: source, extraction, policy, tree, workflow
+
+Depends on: CDP-1305, CDP-502",cdp mvp-70 e2,2,CDP I7 (Days 43–49),Engineer 2 · Evidence & AI
+CDP-1403,CDP-13,Story,CDP-1403 Frozen held-out set and release eval job,"As a clinical safety officer, I want a frozen, hashed held-out set only the human-triggered release job can read, so that the Day-70 eval can't have been tuned against.
+
+Acceptance criteria:
+- Patient-disjoint from golden set; hash recorded
+- Devin and PR lanes have no read access
+
+Depends on: CDP-1305
+Addresses review findings: G-08",cdp mvp-70 e2 g-08,3,CDP I8 (Days 50–56),Engineer 2 · Evidence & AI

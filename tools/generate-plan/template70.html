@@ -1,0 +1,941 @@
+<title>Clinical Decision Platform MVP Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --ground:#F2F5F4; --surface:#FFFFFF; --sunk:#E8EEEC; --ink:#13232B; --muted:#52646C; --line:#D3DDDB;
+  --accent:#0A6360; --accent-soft:#DDEEEB; --on-accent:#FFFFFF;
+  --crit:#B42318; --crit-soft:#FCE9E7; --high:#935400; --high-soft:#FCEFD8; --med:#3B569A; --med-soft:#E6ECF8;
+  --o-lead:#6B3FA0; --o-e1:#0A6360; --o-e2:#935400; --o-e3:#3B569A; --o-e4:#8A2F4F;
+  --sans:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0D1618; --surface:#132022; --sunk:#0F1B1D; --ink:#E2EBE9; --muted:#9BAFAD; --line:#253739;
+    --accent:#62C3B9; --accent-soft:#16312F; --on-accent:#0D1618;
+    --crit:#F2877A; --crit-soft:#3A1B18; --high:#E6AE58; --high-soft:#33250F; --med:#9CB1EE; --med-soft:#1B2440;
+    --o-lead:#C3A4EC; --o-e1:#62C3B9; --o-e2:#E6AE58; --o-e3:#9CB1EE; --o-e4:#E79AB6;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0D1618; --surface:#132022; --sunk:#0F1B1D; --ink:#E2EBE9; --muted:#9BAFAD; --line:#253739;
+  --accent:#62C3B9; --accent-soft:#16312F; --on-accent:#0D1618;
+  --crit:#F2877A; --crit-soft:#3A1B18; --high:#E6AE58; --high-soft:#33250F; --med:#9CB1EE; --med-soft:#1B2440;
+  --o-lead:#C3A4EC; --o-e1:#62C3B9; --o-e2:#E6AE58; --o-e3:#9CB1EE; --o-e4:#E79AB6;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:16px}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:24px;padding-block:40px 80px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:48px}
+@media (max-width:980px){.wrap{grid-template-columns:1fr;gap:24px;padding-inline:16px;padding-block:24px 60px}}
+nav.toc{position:sticky;top:24px;align-self:start;font-size:13px}
+nav.toc .mark{font:600 11px/1.3 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 14px}
+nav.toc a{display:block;color:var(--muted);text-decoration:none;padding:6px 0;border-top:1px solid var(--line)}
+nav.toc a:hover{color:var(--ink)}
+@media (max-width:980px){nav.toc{position:static;display:flex;flex-wrap:wrap;gap:6px 14px}nav.toc .mark{width:100%;margin:0}nav.toc a{border:0;padding:2px 0}}
+main{min-width:0}
+h1,h2,h3,h4{text-wrap:balance;margin:0}
+.eyebrow{font:600 12px/1.3 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+h1{font-weight:800;font-size:clamp(30px,4.2vw,44px);line-height:1.08;letter-spacing:-.02em;margin:14px 0 18px;max-width:22ch}
+.lead{font-size:18px;line-height:1.55;color:var(--muted);max-width:68ch;margin:0}
+h2{font-weight:800;font-size:26px;line-height:1.2;letter-spacing:-.01em;margin-bottom:8px}
+h3{font-weight:700;font-size:18px;line-height:1.3}
+h4{font-weight:700;font-size:16px;line-height:1.35}
+p{margin:0}
+.muted{color:var(--muted)}
+section.block{margin-top:56px;padding-top:32px;border-top:1px solid var(--line)}
+.sub{color:var(--muted);max-width:70ch;margin-bottom:24px}
+.prose{max-width:72ch;display:grid;gap:12px}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.nowrap{white-space:nowrap}
+
+/* summary strip */
+.strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-top:28px}
+.strip div{background:var(--surface);padding:14px 16px}
+.strip dt{font:600 11px/1.3 var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.strip dd{margin:4px 0 0;font-weight:800;font-size:26px;line-height:1.1;font-variant-numeric:tabular-nums}
+.strip dd small{display:block;font:400 12px/1.4 var(--sans);color:var(--muted);margin-top:4px}
+@media (max-width:760px){.strip{grid-template-columns:repeat(2,minmax(0,1fr))}.strip div:first-child{grid-column:1/-1}}
+
+/* verdict */
+.verdict{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:20px}
+@media (max-width:760px){.verdict{grid-template-columns:1fr}}
+.verdict h3{font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:8px}
+.verdict ul{margin:0;padding-left:18px;display:grid;gap:6px}
+.decisions{margin-top:28px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px 22px}
+.decisions h3{margin-bottom:12px}
+.decisions ol{margin:0;padding-left:20px;display:grid;gap:10px}
+
+/* severity chips */
+.sev{display:inline-block;font:600 11px/1 var(--mono);letter-spacing:.04em;text-transform:uppercase;padding:5px 7px;border-radius:3px;white-space:nowrap}
+.sev-critical{color:var(--crit);background:var(--crit-soft)}
+.sev-high{color:var(--high);background:var(--high-soft)}
+.sev-medium{color:var(--med);background:var(--med-soft)}
+.sevhead{display:flex;align-items:center;gap:10px;margin:32px 0 8px;font-size:15px;color:var(--muted);font-weight:600}
+
+/* findings */
+.findings{border-top:1px solid var(--line)}
+.finding{display:grid;grid-template-columns:150px minmax(0,1fr);gap:20px;padding:20px 0;border-bottom:1px solid var(--line)}
+@media (max-width:760px){.finding{grid-template-columns:1fr;gap:8px}}
+.fmeta{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+@media (max-width:760px){.fmeta{flex-direction:row;flex-wrap:wrap;align-items:center}}
+.fid{font:600 15px/1 var(--mono)}
+.area{font-size:12px;color:var(--muted)}
+.fbody{display:grid;gap:8px;max-width:78ch}
+.fbody h4{margin-bottom:2px}
+.lbl{display:inline-block;min-width:78px;font:600 11px/1.6 var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+.std{font-size:13px;color:var(--muted)}
+.fix{background:var(--accent-soft);padding:10px 12px;border-radius:4px}
+.fix .lbl{color:var(--accent)}
+.tracked{font-size:13px}
+code{font:13px/1.4 var(--mono);background:var(--sunk);padding:1px 4px;border-radius:3px;overflow-wrap:anywhere}
+.fix code{background:transparent;padding:0}
+.skey,.gid{font:600 12px/1.4 var(--mono);white-space:nowrap}
+.gid{margin-right:6px}
+a.skey{margin-right:8px}
+
+/* diagram */
+figure{margin:20px 0 0}
+.diagram{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px}
+.diagram svg{display:block;width:100%;min-width:760px;height:auto}
+figcaption{font-size:13px;color:var(--muted);margin-top:10px;max-width:80ch}
+.d-perim{fill:none;stroke:var(--accent);stroke-dasharray:6 5;stroke-width:1.5}
+.d-node{fill:var(--sunk);stroke:var(--line)}
+.d-hub{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.5}
+.d-chip{fill:var(--surface);stroke:var(--accent)}
+.d-out{fill:var(--surface);stroke:var(--line);stroke-dasharray:3 3}
+.d-new{fill:var(--high-soft);stroke:var(--high)}
+.d-t{fill:var(--ink);font:600 13px var(--sans)}
+.d-s{fill:var(--muted);font:400 11px var(--sans)}
+.d-a{fill:var(--accent);font:600 11px var(--mono)}
+.d-l{fill:none;stroke:var(--muted);stroke-width:1.5}
+.d-arrow{fill:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:12px;color:var(--muted);margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:14px;height:10px;border-radius:2px;display:inline-block;border:1px solid}
+.sw-hub{background:var(--accent-soft);border-color:var(--accent)}
+.sw-new{background:var(--high-soft);border-color:var(--high)}
+.sw-out{background:var(--surface);border-color:var(--line);border-style:dashed}
+
+/* tables */
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.5}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}
+thead th{font:600 11px/1.3 var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);background:var(--sunk);border-bottom:1px solid var(--line)}
+th.num,td.num{text-align:right}
+.tbl{background:var(--surface);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.tbl table td:first-child{font-weight:600}
+.state{font:600 12px var(--mono);white-space:nowrap}
+.new-tag{font:600 10px/1 var(--mono);color:var(--high);background:var(--high-soft);padding:3px 5px;border-radius:3px;margin-left:6px;vertical-align:2px}
+
+/* scope */
+.scope{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+@media (max-width:760px){.scope{grid-template-columns:1fr}}
+.scope > div{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:18px 20px}
+.scope h3{font-size:15px;margin-bottom:10px}
+.scope ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:14px}
+.scope .defer li span{color:var(--muted);font-size:13px}
+.exit{margin-top:20px;background:var(--surface);border:1px solid var(--accent);border-radius:6px;padding:18px 20px}
+.exit h3{font-size:15px;margin-bottom:10px;color:var(--accent)}
+.exit ol{margin:0;padding-left:20px;display:grid;gap:6px;font-size:14px}
+.assume{margin-top:16px;font-size:13px;color:var(--muted);max-width:80ch}
+
+/* capacity */
+table.cap{background:var(--surface);border:1px solid var(--line);min-width:560px}
+table.cap tbody th,table.cap tfoot th{font:600 13px var(--sans);color:var(--ink);background:transparent;text-transform:none;letter-spacing:0}
+table.cap tfoot td,table.cap tfoot th{border-top:2px solid var(--line);font-weight:700}
+td.cap0{color:var(--muted)}
+td.caphi{color:var(--high);font-weight:700}
+td.tot{font-weight:700}
+
+/* owners */
+.owner{display:inline-block;font:600 11px/1 var(--mono);padding:4px 6px;border-radius:3px;border:1px solid currentColor;white-space:nowrap}
+.o-lead{color:var(--o-lead)}.o-e1{color:var(--o-e1)}.o-e2{color:var(--o-e2)}.o-e3{color:var(--o-e3)}.o-e4{color:var(--o-e4)}
+
+/* epics */
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 8px;position:sticky;top:0;background:var(--ground);padding:10px 0;z-index:2;border-bottom:1px solid var(--line)}
+.filters .fl{font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-right:4px}
+.filters button{font:600 12px var(--sans);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
+.filters button:hover{border-color:var(--accent)}
+.filters button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.filters .count{font-size:12px;color:var(--muted);margin-left:auto}
+.epic{margin-top:32px}
+.epichead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 24px;align-items:flex-end;margin-bottom:12px}
+.epichead p{color:var(--muted);font-size:14px;margin-top:4px;max-width:60ch}
+.ekey{font:600 12px var(--mono);color:var(--accent)}
+.estats{display:flex;gap:20px;margin:0}
+.estats dt{font:600 10px var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.estats dd{margin:2px 0 0;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
+table.stories{background:var(--surface);border:1px solid var(--line);min-width:720px}
+table.stories td.k{width:96px}
+table.stories td.story{max-width:70ch}
+table.stories .as{color:var(--muted);font-size:13px;margin:4px 0 6px}
+table.stories ul.ac{margin:0;padding-left:18px;font-size:13px;display:grid;gap:3px}
+table.stories .links{font-size:12px;margin-top:8px}
+table.stories .links .lbl{min-width:0}
+table.stories .gl{margin-left:10px}
+table.stories tr:target td{background:var(--accent-soft)}
+.finding:target{background:var(--accent-soft)}
+footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+
+/* 70-day additions */
+.phase{display:inline-block;font:600 11px/1 var(--mono);padding:4px 6px;border-radius:3px;white-space:nowrap}
+.ph-mvp{color:var(--accent);background:var(--accent-soft)}
+.ph-t{color:var(--med);background:var(--med-soft)}
+.ph-p2{color:var(--muted);background:var(--sunk);border:1px dashed var(--line)}
+.ph-cp{color:var(--high);background:var(--high-soft)}
+sup.p2{font:600 9px var(--mono);color:var(--muted);margin:0 6px 0 -4px}
+tr.rowp2 td{color:var(--muted)}
+tr.rowp2 td strong{color:var(--ink);font-weight:600}
+tr.cprow td{background:var(--high-soft)}
+td.p2col,th.p2col{color:var(--muted)}
+table.cap td small{color:var(--muted);font-weight:400}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:900px){.cards{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:18px 20px;display:grid;gap:10px;align-content:start}
+.card.key{border-color:var(--high)}
+.card .when{font:600 12px var(--mono);color:var(--high);text-transform:uppercase;letter-spacing:.05em}
+.card h3{font-size:17px}
+.card h4{font-size:12px;font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:4px}
+.card ul,.card ol{margin:0;padding-left:18px;display:grid;gap:5px;font-size:14px}
+.loop{list-style:none;margin:16px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;counter-reset:step}
+@media (max-width:900px){.loop{grid-template-columns:1fr}}
+.loop li{counter-increment:step;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 14px 12px 44px;position:relative;font-size:14px}
+.loop li::before{content:counter(step);position:absolute;left:12px;top:11px;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--on-accent);font:600 12px/22px var(--mono);text-align:center}
+.loop li strong{display:block;margin-bottom:2px}
+.loop li.back{border-style:dashed}
+.outcome{background:var(--surface);border:1px solid var(--accent);border-radius:6px;padding:18px 22px;margin-top:24px}
+.outcome p{max-width:80ch}
+.outcome .big{font-size:18px;font-weight:700;margin-bottom:8px}
+.twocol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+@media (max-width:760px){.twocol{grid-template-columns:1fr}}
+h3.sect{margin:36px 0 12px}
+.filters .sep{width:1px;height:22px;background:var(--line);margin:0 6px}
+
+/* process & integration views */
+.diagram.wide svg{min-width:1180px}
+.sl-lane{fill:var(--surface)} .sl-lane-alt{fill:var(--sunk)} .sl-band{fill:var(--accent-soft)}
+.sl-lab{fill:var(--accent);font:700 13px var(--sans)}
+.sl-t{fill:var(--ink);font:600 13px var(--sans)} .sl-s{fill:var(--muted);font:400 11.5px var(--sans)} .sl-scr{fill:var(--accent);font:600 11.5px var(--mono)}
+.sl-box{fill:var(--surface);stroke:var(--line);stroke-width:1.2} .sl-plat{fill:var(--accent-soft);stroke:var(--accent)}
+.sl-end{fill:var(--surface);stroke:var(--ink);stroke-width:1.6} .sl-gate{fill:var(--high-soft);stroke:var(--high);stroke-width:1.4}
+.sl-gov{fill:var(--crit-soft);stroke:var(--crit)}
+.sl-l{fill:none;stroke:var(--muted);stroke-width:1.5} .sl-dash{stroke-dasharray:6 4}
+.sl-a{fill:var(--muted);font:600 11px var(--mono)}
+.d-p2{fill:var(--surface);stroke:var(--muted);stroke-dasharray:5 4}
+.wf-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:16px}
+@media (max-width:900px){.wf-grid{grid-template-columns:1fr}}
+.wf{background:var(--surface);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.wf.full{grid-column:1/-1}
+.wf-top{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;background:var(--sunk);border-bottom:1px solid var(--line);font:600 12px var(--mono);color:var(--muted)}
+.wf-top b{color:var(--ink)}
+.wf-body{padding:14px;display:grid;gap:10px;font-size:13px;flex:1;min-width:0}
+.wf-cap{padding:10px 14px;border-top:1px dashed var(--line);font-size:12px;color:var(--muted);margin:0}
+.wf-banner{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:8px 10px;background:var(--sunk);border-radius:4px}
+.wf-cols{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:12px}
+@media (max-width:900px){.wf-cols{grid-template-columns:1fr}}
+.wf-panel{border:1px solid var(--line);border-radius:4px;padding:10px;display:grid;gap:8px;align-content:start}
+.wf-panel h5{margin:0;font:600 11px var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.wf-item{display:grid;gap:3px;padding-bottom:8px;border-bottom:1px dashed var(--line)}
+.wf-item:last-child{border-bottom:0;padding-bottom:0}
+.wf-item .v{font-weight:700}
+.wf-item .m{font-size:12px;color:var(--muted)}
+.wf-chip{display:inline-block;font:600 10.5px/1 var(--mono);padding:4px 6px;border-radius:3px;white-space:nowrap;justify-self:start}
+.c-ok{color:var(--accent);background:var(--accent-soft)} .c-warn{color:var(--high);background:var(--high-soft)}
+.c-crit{color:var(--crit);background:var(--crit-soft)} .c-info{color:var(--med);background:var(--med-soft)}
+.c-mute{color:var(--muted);background:var(--sunk);border:1px dashed var(--line)}
+.wf-btns{display:flex;flex-wrap:wrap;gap:8px}
+.wf-btn{display:inline-block;font:600 12px var(--sans);padding:6px 11px;border-radius:4px;border:1px solid var(--line);color:var(--ink);background:var(--surface)}
+.wf-btn.pri{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.wf-btn.off{opacity:.55}
+.wf-field{border:1px solid var(--line);border-radius:4px;padding:7px 9px;color:var(--muted);font-size:12px;background:var(--ground)}
+.wf-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.wf-table th,.wf-table td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.wf-table th{font:600 10.5px var(--mono);text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:transparent}
+.wf-table td:first-child{font-weight:600}
+.wf-path{list-style:none;margin:0;padding:0;display:grid;gap:8px;counter-reset:n}
+.wf-path li{counter-increment:n;position:relative;padding-left:26px}
+.wf-path li::before{content:counter(n);position:absolute;left:0;top:1px;width:18px;height:18px;border-radius:50%;border:1px solid var(--accent);color:var(--accent);font:600 10px/16px var(--mono);text-align:center}
+.wf-ex{font-family:var(--mono);font-size:12px;background:var(--ground);border:1px solid var(--line);border-radius:4px;padding:8px}
+.wf-ex mark{background:var(--high-soft);color:var(--ink);padding:0 2px}
+.wf-time{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:12px}
+.wf-time span:nth-child(odd){font-family:var(--mono);color:var(--muted)}
+.wf-empty{border:1px solid var(--crit);background:var(--crit-soft);border-radius:4px;padding:10px;display:grid;gap:6px}
+.wf-empty strong{color:var(--crit)}
+</style>
+
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <p class="mark">70-day MVP plan</p>
+  <a href="#glance">Plan at a glance</a>
+  <a href="#mvp">MVP scope</a>
+  <a href="#architecture">Architecture</a>
+  <a href="#process">Process &amp; screens</a>
+  <a href="#integration">System integration</a>
+  <a href="#build-loop">Agent build loop</a>
+  <a href="#team">Team &amp; what's needed</a>
+  <a href="#watch">Watch-outs</a>
+  <a href="#cadence">Cadence &amp; checkpoints</a>
+  <a href="#timeline">Timeline &amp; capacity</a>
+  <a href="#backlog">Epics &amp; stories</a>
+  <a href="#findings">Appendix: HLD review</a>
+</nav>
+
+<main>
+<header id="glance">
+  <p class="eyebrow">Clinical decision platform · Tree A · 70-day plan · checkpoints on days 30, 60, 70</p>
+  <h1>Shadow-ready Tree A in 70 days</h1>
+  <p class="lead">Four engineers and a lead, using Devin, Google ADK and Arize AX for the first time, build Tree A end to end. The system is verified by clinicians on synthetic data that matches the real BigQuery schemas. Real patient data and shadow mode are Phase 2, and they start only when access and safety gates are met.</p>
+  <dl class="strip">
+    <div><dt>Timeline</dt><dd>70 days<small>60 build + 10 test</small></dd></div>
+    <div><dt>Checkpoints</dt><dd>3<small>Days 30, 60 and 70</small></dd></div>
+    <div><dt>MVP stories</dt><dd>{{N_MVP_STORIES}}<small>{{N_BUILD_POINTS}} build pts + {{N_T_POINTS}} test</small></dd></div>
+    <div><dt>Phase 2</dt><dd>{{N_P2_STORIES}}<small>{{N_P2_POINTS}} pts, after access</small></dd></div>
+    <div><dt>Review findings</dt><dd>{{N_FIND}}<small>{{N_CRIT}} critical · {{N_HIGH}} high</small></dd></div>
+  </dl>
+
+  <div class="outcome">
+    <p class="big">What “done” means on day 70</p>
+    <p>A clinician can open a Tree A case in staging and see which evidence was found and where it came from. They can follow the exact path the tree took, then approve or reject. Every step is audited and replayable from stored data, and missing, pending or stale evidence never becomes a recommendation. The extraction agent has passed thresholds agreed in advance, on a held-out set it was never tuned against. No patient data exists anywhere in the MVP: not in Devin, not in Arize, not in staging.</p>
+  </div>
+
+  <div class="twocol" style="margin-top:20px">
+    <div class="decisions" style="margin-top:0">
+      <h3>Decisions needed this week</h3>
+      <ol>
+        <li><strong>Architecture ADRs:</strong> a single Postgres store, a Postgres job queue in place of Cloud Tasks, and direct BigQuery reads through authorized views, with no mirror copy.</li>
+        <li><strong>The day-70 outcome is “shadow-ready” on synthetic data.</strong> Real data can move earlier only through the Day 30 stretch below.</li>
+        <li><strong>Regulatory owner:</strong> who receives the intended-use statement on day 7.</li>
+        <li><strong>Devin is SaaS:</strong> confirm that Devin only ever touches the dev project and synthetic data.</li>
+      </ol>
+    </div>
+    <div class="decisions" style="margin-top:0">
+      <h3>Assumptions behind the dates</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:8px">
+        <li>70 calendar days: 60 days of build with code freeze at the end of day 60, then 10 days of testing.</li>
+        <li>Devin seats, Arize AX, GitHub and a GCP dev project are ready on day 1.</li>
+        <li>Clinical lead at about 0.5 FTE, with calendar holds booked on day 1.</li>
+        <li>The data team provides P and C schemas and metadata access by day 10.</li>
+        <li>Planning velocity is 5 pts/engineer/week in weeks 1–2, then 6.5 once Devin is productive. This ~1.3× lift is an assumption and gets measured at Day 30.</li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<section class="block" id="mvp">
+  <h2>MVP scope</h2>
+  <p class="sub">Scope is driven by one rule: nothing that protects a patient gets cut for the date. What gets cut is what only matters once real data flows.</p>
+  <div class="scope">
+    <div>
+      <h3>In the 70-day MVP</h3>
+      <ul>
+        <li>Tree A only, with clinician-signed expected paths</li>
+        <li>P and C adapters on BigQuery (dev dataset with real schemas, synthetic rows)</li>
+        <li>Terminology registry, identity binding, timezone rules</li>
+        <li>Eager snapshot, deterministic validator, conflict detection, revalidation before approval</li>
+        <li>Tree compiler, typed operators, pure executor, immutable bundles, kill switch</li>
+        <li>Postgres run store, state machine, job queue, hash-chained audit</li>
+        <li>One ADK extraction skill with Arize AX evals, adversarial set, frozen held-out set</li>
+        <li>Review API and screen (approve, reject, cancel), explanation templates, approval gating</li>
+        <li>Sign-in and roles in staging, fail-closed state, PHI-leak test</li>
+        <li>Devin environment, CI lanes, guardrails for AI-written code, staging deploy lane</li>
+        <li>Test window: verification, fault injection, clinician UAT, held-out eval, restore test</li>
+      </ul>
+    </div>
+    <div class="defer">
+      <h3>Phase 2: after access and Day-70 go</h3>
+      <ul>
+        <li>Authorized views on real P and C; real-data integration; prod data validation</li>
+        <li>Prod project, JIT access, attested deploys</li>
+        <li>PHI access log, real care-relationship source, break-glass, pen test</li>
+        <li>WORM audit export, replay tool, drift monitors, operational alerts</li>
+        <li>Evidence resolution UI, review expiry, automation-bias telemetry</li>
+        <li>Dual-annotated real-data eval set, model retirement registry</li>
+        <li>Shadow protocol, shadow mode, go/no-go for supervised pilot</li>
+        <li>Tree B and the cross-tree regression gate</li>
+        <li>Reconciliation and LLM explanation agents <span>(still deferred)</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="exit">
+    <h3>Day-70 exit criteria</h3>
+    <ol>
+      <li>Every approved Tree A path and safety case passes in CI and in staging. Missing, pending and stale evidence never produce a recommendation.</li>
+      <li>On the frozen held-out set, the extraction skill has zero false acceptances, 100% citation validity, and field accuracy at or above the pre-registered target (CDP-107).</li>
+      <li>Fault injection shows zero duplicated committed transitions across 500 randomized runs, and the kill switch halts in-flight runs within 5 minutes.</li>
+      <li>At least three clinicians complete UAT on 25 scripted cases with no open critical issues.</li>
+      <li>Every MVP hazard has a verified control, and residual risks are listed for Phase 2.</li>
+      <li>The PHI-leak test is green, and no environment, Devin session or Arize space holds real patient data.</li>
+      <li>Phase 2 is re-estimated from actual access status.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="block" id="architecture">
+  <h2>Architecture</h2>
+  <p class="sub">This is the HLD's deterministic hub, simplified for a first-time team. There is one database, no message broker, direct reads from BigQuery, and one agent skill. Highlighted boxes are new or changed from HLD v1.0.</p>
+  <figure>
+    <div class="diagram">
+    <svg viewBox="0 0 960 520" role="img" aria-labelledby="dg-t dg-d">
+      <title id="dg-t">70-day MVP runtime architecture</title>
+      <desc id="dg-d">Inside a VPC Service Controls perimeter, the run and review API writes to Cloud SQL Postgres, which holds runs, snapshots, the job queue and a hash-chained audit table. A worker containing the evidence controller, validator and executor claims jobs from Postgres and commits results back. The worker reads the bundle registry, calls one ADK extraction skill on Vertex AI, and reads P and C clinical data from BigQuery through authorized views. Telemetry leaves through a redaction exporter to Arize AX; documents and bundles live in Cloud Storage.</desc>
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-arrow" d="M0 0L10 5L0 10z"/></marker></defs>
+      <rect class="d-perim" x="175" y="20" width="615" height="480" rx="10"/>
+      <text class="d-a" x="190" y="42">GCP STAGING PROJECT (MVP) · VPC SERVICE CONTROLS · CMEK</text>
+
+      <rect class="d-out" x="20" y="60" width="135" height="60" rx="6"/>
+      <text class="d-t" x="87" y="86" text-anchor="middle">Clinician</text>
+      <text class="d-s" x="87" y="104" text-anchor="middle">review screen</text>
+      <rect class="d-out" x="20" y="160" width="135" height="60" rx="6"/>
+      <text class="d-t" x="87" y="186" text-anchor="middle">Identity</text>
+      <text class="d-s" x="87" y="204" text-anchor="middle">IAP / OIDC · roles</text>
+
+      <rect class="d-node" x="200" y="60" width="180" height="60" rx="6"/>
+      <text class="d-t" x="290" y="86" text-anchor="middle">Run &amp; review API</text>
+      <text class="d-s" x="290" y="104" text-anchor="middle">Cloud Run · idempotent</text>
+
+      <rect class="d-new" x="420" y="56" width="190" height="96" rx="6"/>
+      <text class="d-t" x="515" y="80" text-anchor="middle">Cloud SQL Postgres</text>
+      <text class="d-s" x="515" y="98" text-anchor="middle">runs · snapshots</text>
+      <text class="d-s" x="515" y="114" text-anchor="middle">job queue (SKIP LOCKED)</text>
+      <text class="d-s" x="515" y="130" text-anchor="middle">hash-chained audit · PITR</text>
+
+      <rect class="d-new" x="640" y="56" width="130" height="70" rx="6"/>
+      <text class="d-t" x="705" y="80" text-anchor="middle">Bundle registry</text>
+      <text class="d-s" x="705" y="97" text-anchor="middle">trees · skill · terms</text>
+      <text class="d-s" x="705" y="113" text-anchor="middle">ACTIVE / SUSPENDED</text>
+
+      <rect class="d-hub" x="200" y="196" width="410" height="160" rx="8"/>
+      <text class="d-t" x="215" y="220">Worker · deterministic hub</text>
+      <text class="d-s" x="215" y="236">claims jobs · revision-checked commit · fail closed</text>
+      <rect class="d-chip" x="215" y="252" width="120" height="50" rx="5"/>
+      <text class="d-t" x="275" y="274" text-anchor="middle">Evidence</text>
+      <text class="d-s" x="275" y="290" text-anchor="middle">eager snapshot</text>
+      <rect class="d-chip" x="345" y="252" width="120" height="50" rx="5"/>
+      <text class="d-t" x="405" y="274" text-anchor="middle">Validator</text>
+      <text class="d-s" x="405" y="290" text-anchor="middle">UCUM · freshness · TZ</text>
+      <rect class="d-chip" x="475" y="252" width="120" height="50" rx="5"/>
+      <text class="d-t" x="535" y="274" text-anchor="middle">Executor</text>
+      <text class="d-s" x="535" y="290" text-anchor="middle">pure · no I/O · no LLM</text>
+      <path class="d-l" d="M335 277H343" marker-end="url(#ah)"/>
+      <path class="d-l" d="M465 277H473" marker-end="url(#ah)"/>
+      <text class="d-s" x="215" y="326">Revalidates path evidence before approval</text>
+      <text class="d-s" x="215" y="342">Checks bundle status before every step</text>
+
+      <rect class="d-node" x="640" y="286" width="130" height="70" rx="6"/>
+      <text class="d-t" x="705" y="310" text-anchor="middle">ADK extraction</text>
+      <text class="d-s" x="705" y="327" text-anchor="middle">one skill · Vertex AI</text>
+      <text class="d-s" x="705" y="343" text-anchor="middle">cited · abstains</text>
+
+      <rect class="d-out" x="815" y="186" width="130" height="96" rx="6"/>
+      <text class="d-t" x="880" y="210" text-anchor="middle">BigQuery</text>
+      <text class="d-s" x="880" y="228" text-anchor="middle">P · C clinical data</text>
+      <text class="d-s" x="880" y="244" text-anchor="middle">authorized views</text>
+      <text class="d-s" x="880" y="260" text-anchor="middle">MVP: dev dataset</text>
+
+      <rect class="d-new" x="200" y="410" width="180" height="66" rx="6"/>
+      <text class="d-t" x="290" y="436" text-anchor="middle">Redaction exporter</text>
+      <text class="d-s" x="290" y="454" text-anchor="middle">allowlist · leak-tested</text>
+      <rect class="d-node" x="420" y="410" width="190" height="66" rx="6"/>
+      <text class="d-t" x="515" y="436" text-anchor="middle">Cloud Storage</text>
+      <text class="d-s" x="515" y="454" text-anchor="middle">documents · bundles</text>
+      <rect class="d-out" x="20" y="410" width="135" height="66" rx="6"/>
+      <text class="d-t" x="87" y="436" text-anchor="middle">Arize AX</text>
+      <text class="d-s" x="87" y="454" text-anchor="middle">traces · evals</text>
+
+      <path class="d-l" d="M155 90H198" marker-end="url(#ah)"/>
+      <path class="d-l" d="M155 190H290V122" marker-end="url(#ah)"/>
+      <path class="d-l" d="M380 90H418" marker-end="url(#ah)"/>
+      <path class="d-l" d="M470 194V154" marker-start="url(#ah)" marker-end="url(#ah)"/>
+      <text class="d-a" x="478" y="180">claim · commit</text>
+      <path class="d-l" d="M610 206H625V91H638" marker-end="url(#ah)"/>
+      <path class="d-l" d="M610 234H813" marker-end="url(#ah)"/>
+      <text class="d-a" x="650" y="226">read-only · capped</text>
+      <path class="d-l" d="M610 320H638" marker-end="url(#ah)"/>
+      <path class="d-l" d="M290 356V408" marker-end="url(#ah)"/>
+      <path class="d-l" d="M515 356V408" marker-end="url(#ah)"/>
+      <path class="d-l" d="M200 443H157" marker-end="url(#ah)"/>
+    </svg>
+    </div>
+    <div class="legend"><span><i class="sw sw-hub"></i>Deterministic hub</span><span><i class="sw sw-new"></i>New or changed from HLD v1.0</span><span><i class="sw sw-out"></i>Outside the perimeter</span></div>
+    <figcaption>The LLM never sees the tree and never chooses a branch. It only turns bounded documents into cited candidates, and the validator decides whether to accept them. Postgres keeps only the values a run used, with row hash and BigQuery job ID. P and C are never mirrored.</figcaption>
+  </figure>
+
+  <h3 class="sect">Environments</h3>
+  <div class="tbl scroll"><table>
+    <thead><tr><th scope="col">Environment</th><th scope="col">Who works there</th><th scope="col">Data</th><th scope="col">Arize AX</th><th scope="col">Credentials</th></tr></thead>
+    <tbody>
+      <tr><td>Dev</td><td>Devin and engineers</td><td>Synthetic rows in a BigQuery dev dataset with real schemas</td><td><code>cdp-dev</code>: full prompts and responses</td><td>Devin: dev project only</td></tr>
+      <tr><td>CI</td><td>Pipelines</td><td>Fixtures plus recorded model responses; live model only in eval lanes</td><td><code>cdp-dev</code> experiments; <code>cdp-holdout</code> read only by the release job</td><td>Workload Identity Federation, no keys</td></tr>
+      <tr><td>Staging</td><td>Engineers, clinicians for demos and UAT</td><td>Synthetic only in the MVP</td><td><code>cdp-staging</code>, behind the leak-tested exporter</td><td>Humans only; no Devin</td></tr>
+      <tr><td>Prod (Phase 2)</td><td>Just-in-time humans</td><td>Real patient data</td><td><code>cdp-prod</code>: structural spans only</td><td>No Devin, ever</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+
+<section class="block" id="process">
+  <h2>Business process and screen design</h2>
+  <p class="sub">What a Tree A case looks like to the people involved. Numbered steps are the happy path, diamonds are decision points, and S1–S6 are the screens below. The clinician decides at every branch that matters; the platform decides only whether evidence is usable.</p>
+  <figure>
+    <div class="diagram wide"><svg viewBox="0 0 1620 520" role="img" aria-labelledby="bp-t bp-d"><title id="bp-t">Tree A clinical decision business process</title><desc id="bp-d">Swimlanes for clinician, CDS platform, sources and AI, and safety governance. A clinician opens the worklist and starts a Tree A run. The platform authorizes, builds a validated snapshot from BigQuery P and C and the ADK extraction skill, and checks whether evidence is usable. Unusable evidence ends with no recommendation. Usable evidence runs Tree A and creates a review task. The clinician reviews and approves, rejects or cancels. Approval triggers revalidation; changed evidence recomputes, unchanged evidence saves the reviewed recommendation with no EHR writeback. A safety officer can suspend a bundle, halting runs at their next step. Rejections feed a weekly clinical case review.</desc><defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-arrow" d="M0 0L10 5L0 10z"/></marker></defs><rect class="sl-lane" x="0" y="0" width="1620" height="130"/><rect class="sl-band" x="0" y="0" width="120" height="130"/><text class="sl-lab" x="14" y="70">Clinician</text><rect class="sl-lane-alt" x="0" y="130" width="1620" height="130"/><rect class="sl-band" x="0" y="130" width="120" height="130"/><text class="sl-lab" x="14" y="200">CDS platform</text><rect class="sl-lane" x="0" y="260" width="1620" height="130"/><rect class="sl-band" x="0" y="260" width="120" height="130"/><text class="sl-lab" x="14" y="330">Sources &amp; AI</text><rect class="sl-lane-alt" x="0" y="390" width="1620" height="130"/><rect class="sl-band" x="0" y="390" width="120" height="130"/><text class="sl-lab" x="14" y="450">Safety &amp;</text><text class="sl-lab" x="14" y="468">governance</text><rect class="sl-box" x="125" y="38" width="150" height="54" rx="6"/><text class="sl-t" x="200" y="61" text-anchor="middle">1 Open worklist</text><text class="sl-scr" x="200" y="79" text-anchor="middle">S1</text><rect class="sl-box" x="290" y="38" width="150" height="54" rx="6"/><text class="sl-t" x="365" y="61" text-anchor="middle">2 Start Tree A run</text><text class="sl-scr" x="365" y="79" text-anchor="middle">S2</text><rect class="sl-plat" x="455" y="168" width="150" height="54" rx="6"/><text class="sl-t" x="530" y="191" text-anchor="middle">3 Authorize run</text><text class="sl-s" x="530" y="209" text-anchor="middle">role · care · bundle</text><rect class="sl-plat" x="620" y="168" width="150" height="54" rx="6"/><text class="sl-t" x="695" y="191" text-anchor="middle">4 Build snapshot</text><text class="sl-s" x="695" y="209" text-anchor="middle">eager fetch · validate</text><rect class="sl-box" x="535" y="298" width="150" height="54" rx="6"/><text class="sl-t" x="610" y="321" text-anchor="middle">BigQuery P · C</text><text class="sl-s" x="610" y="339" text-anchor="middle">authorized views</text><rect class="sl-box" x="715" y="298" width="150" height="54" rx="6"/><text class="sl-t" x="790" y="321" text-anchor="middle">ADK extraction</text><text class="sl-s" x="790" y="339" text-anchor="middle">cited · may abstain</text><polygon class="sl-gate" points="860,163 904,195 860,227 816,195"/><text class="sl-t" x="860" y="200" text-anchor="middle">Usable?</text><rect class="sl-end" x="785" y="38" width="150" height="54" rx="27"/><text class="sl-t" x="860" y="61" text-anchor="middle">No recommendation</text><text class="sl-scr" x="860" y="79" text-anchor="middle">S3 · standard pathway</text><rect class="sl-plat" x="950" y="168" width="150" height="54" rx="6"/><text class="sl-t" x="1025" y="191" text-anchor="middle">5 Run Tree A</text><text class="sl-s" x="1025" y="209" text-anchor="middle">provisional result</text><rect class="sl-box" x="950" y="38" width="150" height="54" rx="6"/><text class="sl-t" x="1025" y="61" text-anchor="middle">6 Review case</text><text class="sl-scr" x="1025" y="79" text-anchor="middle">S3 · S4</text><polygon class="sl-gate" points="1190,33 1234,65 1190,97 1146,65"/><text class="sl-t" x="1190" y="70" text-anchor="middle">Decide</text><rect class="sl-plat" x="1115" y="168" width="150" height="54" rx="6"/><text class="sl-t" x="1190" y="191" text-anchor="middle">7 Revalidate</text><text class="sl-s" x="1190" y="209" text-anchor="middle">compare row hashes</text><polygon class="sl-gate" points="1355,163 1405,195 1355,227 1305,195"/><text class="sl-t" x="1355" y="200" text-anchor="middle">Changed?</text><rect class="sl-end" x="1445" y="168" width="150" height="54" rx="27"/><text class="sl-t" x="1520" y="191" text-anchor="middle">Recommendation saved</text><text class="sl-scr" x="1520" y="209" text-anchor="middle">S5 · no EHR writeback</text><rect class="sl-end" x="1445" y="38" width="150" height="54" rx="27"/><text class="sl-t" x="1520" y="61" text-anchor="middle">Rejected or cancelled</text><text class="sl-scr" x="1520" y="79" text-anchor="middle">S5 · rationale required</text><rect class="sl-gov" x="950" y="428" width="150" height="54" rx="6"/><text class="sl-t" x="1025" y="451" text-anchor="middle">Suspend bundle</text><text class="sl-scr" x="1025" y="469" text-anchor="middle">S6 · kill switch</text><rect class="sl-box" x="1225" y="428" width="150" height="54" rx="6"/><text class="sl-t" x="1300" y="451" text-anchor="middle">Weekly case review</text><text class="sl-s" x="1300" y="469" text-anchor="middle">rejections → eval set</text><path class="sl-l" d="M275 65H288" marker-end="url(#ah2)"/><path class="sl-l" d="M365 92V195H453" marker-end="url(#ah2)"/><text class="sl-a" x="373" y="160" text-anchor="start">POST /v1/runs</text><path class="sl-l" d="M605 195H618" marker-end="url(#ah2)"/><path class="sl-l" d="M650 222V296" marker-start="url(#ah2)" marker-end="url(#ah2)"/><text class="sl-a" x="642" y="266" text-anchor="end">query</text><path class="sl-l" d="M750 222V296" marker-start="url(#ah2)" marker-end="url(#ah2)"/><text class="sl-a" x="758" y="266" text-anchor="start">extract</text><path class="sl-l" d="M770 195H814" marker-end="url(#ah2)"/><path class="sl-l" d="M860 163V94" marker-end="url(#ah2)"/><text class="sl-a" x="868" y="140" text-anchor="start">no</text><path class="sl-l" d="M904 195H948" marker-end="url(#ah2)"/><text class="sl-a" x="914" y="186" text-anchor="start">yes</text><path class="sl-l" d="M1025 168V94" marker-end="url(#ah2)"/><text class="sl-a" x="1033" y="140" text-anchor="start">review task</text><path class="sl-l" d="M1100 65H1144" marker-end="url(#ah2)"/><path class="sl-l" d="M1190 97V166" marker-end="url(#ah2)"/><text class="sl-a" x="1198" y="140" text-anchor="start">approve</text><path class="sl-l" d="M1234 65H1443" marker-end="url(#ah2)"/><text class="sl-a" x="1338" y="56" text-anchor="middle">reject · cancel</text><path class="sl-l" d="M1265 195H1303" marker-end="url(#ah2)"/><path class="sl-l" d="M1405 195H1443" marker-end="url(#ah2)"/><text class="sl-a" x="1414" y="186" text-anchor="start">no</text><path class="sl-l" d="M1355 227V248H1025V224" marker-end="url(#ah2)"/><text class="sl-a" x="1108" y="243" text-anchor="end">yes · recompute</text><path class="sl-l sl-dash" d="M1025 428V224" marker-end="url(#ah2)"/><text class="sl-a" x="1033" y="412" text-anchor="start">halts at next step</text><path class="sl-l sl-dash" d="M1595 65H1608V455H1377" marker-end="url(#ah2)"/><text class="sl-a" x="1600" y="300" text-anchor="end">rationale</text></svg></div>
+    <figcaption>Two outcomes never produce a recommendation: unusable evidence (fail closed) and a clinician's reject or cancel. The kill switch can interrupt any run in progress. There is no writeback: after approval, the clinician acts in the EHR themselves.</figcaption>
+  </figure>
+
+  <h3 class="sect">Step-by-step solution design</h3>
+  <div class="tbl scroll"><table>
+    <thead><tr><th scope="col">Step</th><th scope="col">Who</th><th scope="col">Screen</th><th scope="col">What the system does</th><th scope="col">Interfaces</th><th scope="col">Stories</th></tr></thead>
+    <tbody>
+      <tr><td>1 · Open worklist</td><td>Clinician</td><td>S1</td><td>Lists only the Tree A runs this user may see, by role and care assignment</td><td>IF-01, 02, 03</td><td><a class="skey" href="#CDP-809">809</a> <a class="skey" href="#CDP-901">901</a></td></tr>
+      <tr><td>2 · Start run</td><td>Clinician</td><td>S2</td><td>Idempotent start; one active run per patient, encounter and tree; bundle version pinned</td><td>IF-01, 03</td><td><a class="skey" href="#CDP-702">702</a> <a class="skey" href="#CDP-701">701</a></td></tr>
+      <tr><td>3 · Authorize, create run</td><td>Platform</td><td>—</td><td>Re-checks role and care assignment; bundle ACTIVE and within review date; first job queued</td><td>IF-02, 03, 08</td><td><a class="skey" href="#CDP-604">604</a> <a class="skey" href="#CDP-703">703</a></td></tr>
+      <tr><td>4 · Build snapshot</td><td>Platform, sources, AI</td><td>—</td><td>Queries P and C views once; extracts from documents with citations; validates units, freshness, identity and provenance</td><td>IF-05, 06, 07, 08</td><td><a class="skey" href="#CDP-403">403</a> <a class="skey" href="#CDP-402">402</a> <a class="skey" href="#CDP-502">502</a></td></tr>
+      <tr><td>◇ Usable?</td><td>Platform</td><td>S3 (no recommendation)</td><td>Missing, pending, stale, conflicting or unresolved required evidence ends the run and shows reasons</td><td>IF-03</td><td><a class="skey" href="#CDP-404">404</a> <a class="skey" href="#CDP-705">705</a></td></tr>
+      <tr><td>5 · Run Tree A</td><td>Platform</td><td>—</td><td>Pure executor records the path with the audit chain; creates the review task</td><td>IF-04</td><td><a class="skey" href="#CDP-603">603</a> <a class="skey" href="#CDP-902">902</a></td></tr>
+      <tr><td>6 · Review case</td><td>Clinician</td><td>S3, S4</td><td>Shows evidence, provenance and path; approval stays disabled until flagged items are opened</td><td>IF-01</td><td><a class="skey" href="#CDP-803">803</a> <a class="skey" href="#CDP-806">806</a> <a class="skey" href="#CDP-805">805</a></td></tr>
+      <tr><td>7 · Revalidate</td><td>Platform</td><td>—</td><td>Re-queries row hashes on the path; changed → recompute and return to review; unchanged → commit</td><td>IF-05, 06, 03</td><td><a class="skey" href="#CDP-405">405</a> <a class="skey" href="#CDP-801">801</a></td></tr>
+      <tr><td>Outcome</td><td>Clinician</td><td>S5</td><td>COMPLETED_REVIEWED, REJECTED or CANCELLED, with a readable audit timeline</td><td>IF-03</td><td><a class="skey" href="#CDP-810">810</a></td></tr>
+      <tr><td>Kill switch</td><td>Safety officer</td><td>S6</td><td>Suspend with reason → runs halt at next step → recall list</td><td>IF-01, 03</td><td><a class="skey" href="#CDP-811">811</a> <a class="skey" href="#CDP-607">607</a></td></tr>
+      <tr><td>Weekly case review</td><td>Clinical lead</td><td>Arize AX, Jira</td><td>Rejections and no-recommendation runs become regression cases or tree change requests</td><td>IF-12</td><td><a class="skey" href="#CDP-1308">1308</a></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="sect">Screens</h3>
+  <p class="sub" style="margin-bottom:0">Low-fidelity wireframes showing layout and behavior, not visual design. Every patient, value and code is synthetic.</p>
+  <div class="wf-grid">
+
+    <div class="wf">
+      <div class="wf-top"><b>S1 · Worklist</b><span>clinical_reviewer</span></div>
+      <div class="wf-body">
+        <div class="wf-btns"><span class="wf-btn pri">Start Tree A run</span><span class="wf-btn">Needs review (1)</span><span class="wf-btn">All statuses</span></div>
+        <div class="scroll"><table class="wf-table">
+          <thead><tr><th>Patient</th><th>Tree</th><th>Status</th><th>Updated</th></tr></thead>
+          <tbody>
+            <tr><td>Test Patient A · SYN-0142</td><td>Tree A 0.3.0</td><td><span class="wf-chip c-warn">Needs review</span></td><td>14:12</td></tr>
+            <tr><td>Test Patient B · SYN-0177</td><td>Tree A 0.3.0</td><td><span class="wf-chip c-mute">No recommendation</span></td><td>13:58</td></tr>
+            <tr><td>Test Patient C · SYN-0103</td><td>Tree A 0.3.0</td><td><span class="wf-chip c-info">Gathering evidence</span></td><td>14:15</td></tr>
+            <tr><td>Test Patient D · SYN-0121</td><td>Tree A 0.3.0</td><td><span class="wf-chip c-ok">Approved</span></td><td>11:40</td></tr>
+            <tr><td>Test Patient E · SYN-0188</td><td>Tree A 0.2.1</td><td><span class="wf-chip c-crit">Halted · tree suspended</span></td><td>09:05</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <p class="wf-cap">Only patients in the user's care assignment. Status names are what clinicians say, not state-machine names.</p>
+    </div>
+
+    <div class="wf">
+      <div class="wf-top"><b>S2 · Start run</b><span>dialog over S1</span></div>
+      <div class="wf-body">
+        <div class="wf-item"><span class="m">Patient and encounter</span><span class="v">Test Patient A · SYN-0142 · ENC-SYN-88</span></div>
+        <div class="wf-item"><span class="m">Decision tree</span><span class="v">Tree A · version 0.3.0 <span class="wf-chip c-ok">Active</span></span><span class="m">Clinically approved · review due 30 Jun 2027</span></div>
+        <div class="wf-field">Evidence is gathered automatically. You'll see every value and where it came from before any recommendation is shown.</div>
+        <div class="wf-btns"><span class="wf-btn pri">Start run</span><span class="wf-btn">Cancel</span></div>
+      </div>
+      <p class="wf-cap">Starting twice for the same patient and tree opens the existing run instead of creating a duplicate.</p>
+    </div>
+
+    <div class="wf full">
+      <div class="wf-top"><b>S3 · Case review</b><span>the primary safety control</span></div>
+      <div class="wf-body">
+        <div class="wf-banner"><strong>Test Patient A · SYN-0142</strong><span>ENC-SYN-88</span><span>Tree A 0.3.0 · 4f1c…</span><span class="wf-chip c-warn">Provisional · needs your review</span><span class="m" style="color:var(--muted);font-size:12px">Evidence as of 14:10 EDT · valid until 18:10 EDT</span></div>
+        <div class="wf-cols">
+          <div class="wf-panel">
+            <h5>Evidence</h5>
+            <div class="wf-item"><span class="m">Culture result</span><span class="v">Positive · final</span><span class="m">Observed 13 Sep 08:00 EDT · C · BigQuery</span><span class="wf-chip c-ok">Accepted</span></div>
+            <div class="wf-item"><span class="m">Serum creatinine</span><span class="v">1.1 mg/dL</span><span class="m">Observed 13 Sep 08:00 EDT · P · BigQuery</span><span class="wf-chip c-ok">Accepted</span></div>
+            <div class="wf-item"><span class="m">Allergy class · from document</span><span class="v">Penicillin class</span><span class="m">Discharge summary, page 2</span><span class="wf-chip c-warn">Flagged · open to review</span></div>
+            <div class="wf-item"><span class="m">Prior culture, 30 days</span><span class="v">Not found</span><span class="m">Not required on this path</span><span class="wf-chip c-mute">Missing</span></div>
+          </div>
+          <div class="wf-panel">
+            <h5>Decision path</h5>
+            <ol class="wf-path">
+              <li><strong>Culture gate</strong><br><span class="m" style="color:var(--muted);font-size:12px">culture = positive → yes · guideline A.2</span></li>
+              <li><strong>Renal gate</strong><br><span class="m" style="color:var(--muted);font-size:12px">creatinine ≤ 1.5 mg/dL → yes · guideline A.4</span></li>
+              <li><strong>Allergy gate</strong><br><span class="m" style="color:var(--muted);font-size:12px">allergy in penicillin class → yes · guideline A.5</span></li>
+              <li><strong>Outcome DEMO_POSITIVE_ALT</strong><br><span class="m" style="color:var(--muted);font-size:12px">mandatory review</span></li>
+            </ol>
+          </div>
+          <div class="wf-panel">
+            <h5>Recommendation</h5>
+            <p>Evidence meets Tree A's positive-culture path with a documented penicillin-class allergy. Outcome code DEMO_POSITIVE_ALT.</p>
+            <div class="wf-field">Rationale (required to reject or cancel)</div>
+            <div class="wf-btns"><span class="wf-btn pri off">Approve — open 1 flagged item first</span><span class="wf-btn">Reject</span><span class="wf-btn">Cancel run</span></div>
+            <span class="m" style="color:var(--muted);font-size:12px">Approving records the reviewed recommendation. Nothing is written to the EHR.</span>
+          </div>
+        </div>
+        <div class="wf-empty">
+          <strong>Same screen when evidence isn't usable: No recommendation — follow the standard pathway</strong>
+          <span>Culture result is still pending (preliminary 13 Sep 10:00 EDT).</span>
+          <span>Serum creatinine is older than 24 hours (observed 11 Sep 07:30 EDT).</span>
+          <div class="wf-btns"><span class="wf-btn">Close</span><span class="wf-btn">Report a data problem</span></div>
+        </div>
+      </div>
+      <p class="wf-cap">Thresholds and guideline references are illustrative. Clicking any evidence item opens S4. Stale submissions (evidence changed while open) return to this screen with a “Evidence changed — review again” banner.</p>
+    </div>
+
+    <div class="wf">
+      <div class="wf-top"><b>S4 · Evidence detail</b><span>side panel on S3</span></div>
+      <div class="wf-body">
+        <div class="wf-item"><span class="m">Allergy class</span><span class="v">Penicillin class</span><span class="wf-chip c-warn">Extracted · awaiting your review</span></div>
+        <div class="wf-ex">…Patient reports <mark>rash after amoxicillin (penicillin class)</mark> in 2019; no anaphylaxis…</div>
+        <table class="wf-table"><tbody>
+          <tr><td>Document</td><td>Discharge summary · hash 9ac2…e71 · page 2, characters 1,204–1,262</td></tr>
+          <tr><td>Extracted by</td><td>extract_allergy v1.3 · pinned model · operation op_7c2…</td></tr>
+          <tr><td>Retrieved</td><td>13 Sep 14:09 EDT</td></tr>
+        </tbody></table>
+        <div class="wf-btns"><span class="wf-btn pri">Mark as reviewed</span><span class="wf-btn">Report extraction error</span></div>
+      </div>
+      <p class="wf-cap">For BigQuery values the table shows the view, row ID, row hash and job ID instead of an excerpt.</p>
+    </div>
+
+    <div class="wf">
+      <div class="wf-top"><b>S5 · Outcome and audit</b><span>read-only</span></div>
+      <div class="wf-body">
+        <div class="wf-item"><span class="v">Approved by reviewer-07 · 14:18 EDT</span><span class="wf-chip c-ok">Completed · reviewed</span></div>
+        <div class="wf-time">
+          <span>14:09:58</span><span>Run started · Tree A 0.3.0</span>
+          <span>14:10:02</span><span>Snapshot v1 · 4 evidence items</span>
+          <span>14:10:03</span><span>Culture gate → yes</span>
+          <span>14:10:03</span><span>Renal gate → yes · Allergy gate → yes</span>
+          <span>14:18:12</span><span>Flagged evidence opened by reviewer-07</span>
+          <span>14:18:40</span><span>Revalidated · no source changes</span>
+          <span>14:18:41</span><span>Approved · rationale recorded · event 7d0e… (prev 51a9…)</span>
+        </div>
+      </div>
+      <p class="wf-cap">Each event shows its chain hash, so an auditor can verify nothing was altered.</p>
+    </div>
+
+    <div class="wf full">
+      <div class="wf-top"><b>S6 · Trees and skills</b><span>safety_officer · clinical_admin</span></div>
+      <div class="wf-body">
+        <div class="scroll"><table class="wf-table">
+          <thead><tr><th>Bundle</th><th>Version</th><th>Status</th><th>Runs in progress</th><th>Review due</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td>Tree A</td><td>0.3.0</td><td><span class="wf-chip c-ok">Active</span></td><td>3</td><td>30 Jun 2027</td><td><span class="wf-btn">Suspend…</span></td></tr>
+            <tr><td>Tree A</td><td>0.2.1</td><td><span class="wf-chip c-crit">Suspended 13 Sep 09:00</span><br><span style="color:var(--muted);font-size:12px">Reason: renal threshold error, guideline A.4</span></td><td>0</td><td>—</td><td><span class="wf-btn">Recall list · 12 runs, 4 approved</span></td></tr>
+            <tr><td>extract_allergy skill</td><td>1.3</td><td><span class="wf-chip c-ok">Active</span></td><td>3</td><td>—</td><td><span class="wf-btn">Suspend…</span></td></tr>
+          </tbody>
+        </table></div>
+        <div class="wf-field">Suspending requires a reason. Runs in progress stop at their next step and show a banner; approved recommendations appear in the recall list.</div>
+      </div>
+      <p class="wf-cap">Suspending takes effect in under 5 minutes (tested in the fault-injection suite). Only status can change; versions are immutable.</p>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="integration">
+  <h2>System integration architecture</h2>
+  <p class="sub">Every system the platform talks to, and how. Solid lines are in the 70-day MVP; dashed lines are Phase 2 interfaces whose source systems CDP-1209 still has to identify.</p>
+  <figure>
+    <div class="diagram"><svg viewBox="0 0 1100 580" role="img" aria-labelledby="si-t si-d"><title id="si-t">System integration architecture</title><desc id="si-d">The CDS platform GCP project contains the run and review API, the worker, Cloud SQL Postgres and Cloud Storage. Clinicians reach the API over HTTPS through IAP and the organisation identity provider. The worker queries P and C authorized views in the data team BigQuery project, calls Vertex AI, and reads bundles and documents from Cloud Storage. Telemetry goes to Arize AX through a redaction exporter. GitHub Actions deploys with workload identity; Devin only opens pull requests. Care-team and document sources are Phase 2 interfaces. There is no EHR integration in the MVP.</desc><defs><marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="d-arrow" d="M0 0L10 5L0 10z"/></marker></defs><rect class="d-perim" x="330" y="140" width="440" height="290" rx="10"/><text class="d-a" x="344" y="160">CDS PLATFORM · GCP PROJECT · VPC-SC</text><rect class="d-perim" x="830" y="130" width="250" height="200" rx="10"/><text class="d-a" x="844" y="152">DATA TEAM GCP PROJECT</text><rect class="d-out" x="40" y="40" width="200" height="56" rx="6"/><text class="d-t" x="140.0" y="64.0" text-anchor="middle">Devin (SaaS)</text><text class="d-s" x="140.0" y="82.0" text-anchor="middle">PRs · dev project only</text><rect class="d-node" x="330" y="40" width="200" height="56" rx="6"/><text class="d-t" x="430.0" y="64.0" text-anchor="middle">GitHub Actions</text><text class="d-s" x="430.0" y="82.0" text-anchor="middle">Artifact Registry · WIF</text><rect class="d-node" x="600" y="40" width="150" height="56" rx="6"/><text class="d-t" x="675.0" y="64.0" text-anchor="middle">Vertex AI</text><text class="d-s" x="675.0" y="82.0" text-anchor="middle">same region · VPC-SC</text><rect class="d-out" x="40" y="170" width="200" height="56" rx="6"/><text class="d-t" x="140.0" y="194.0" text-anchor="middle">Clinician browser</text><text class="d-s" x="140.0" y="212.0" text-anchor="middle">worklist · review</text><rect class="d-out" x="40" y="300" width="200" height="56" rx="6"/><text class="d-t" x="140.0" y="324.0" text-anchor="middle">Org IdP via IAP</text><text class="d-s" x="140.0" y="342.0" text-anchor="middle">SSO · groups → roles</text><rect class="d-p2" x="40" y="440" width="200" height="64" rx="6"/><text class="d-t" x="140.0" y="468.0" text-anchor="middle">EHR</text><text class="d-s" x="140.0" y="486.0" text-anchor="middle">no integration · no writeback</text><rect class="d-hub" x="360" y="190" width="150" height="56" rx="6"/><text class="d-t" x="435.0" y="214.0" text-anchor="middle">Run &amp; review API</text><text class="d-s" x="435.0" y="232.0" text-anchor="middle">Cloud Run</text><rect class="d-hub" x="600" y="190" width="150" height="56" rx="6"/><text class="d-t" x="675.0" y="214.0" text-anchor="middle">Worker</text><text class="d-s" x="675.0" y="232.0" text-anchor="middle">Cloud Run · ADK</text><rect class="d-node" x="360" y="340" width="150" height="56" rx="6"/><text class="d-t" x="435.0" y="364.0" text-anchor="middle">Cloud SQL Postgres</text><text class="d-s" x="435.0" y="382.0" text-anchor="middle">runs · queue · audit</text><rect class="d-node" x="600" y="340" width="150" height="56" rx="6"/><text class="d-t" x="675.0" y="364.0" text-anchor="middle">Cloud Storage</text><text class="d-s" x="675.0" y="382.0" text-anchor="middle">bundles · MVP docs</text><rect class="d-node" x="855" y="170" width="200" height="50" rx="6"/><text class="d-t" x="955.0" y="191.0" text-anchor="middle">BigQuery P views</text><text class="d-s" x="955.0" y="209.0" text-anchor="middle">cdp_evidence_v1</text><rect class="d-node" x="855" y="250" width="200" height="50" rx="6"/><text class="d-t" x="955.0" y="271.0" text-anchor="middle">BigQuery C views</text><text class="d-s" x="955.0" y="289.0" text-anchor="middle">cdp_evidence_v1</text><rect class="d-p2" x="830" y="370" width="250" height="56" rx="6"/><text class="d-t" x="955.0" y="394.0" text-anchor="middle">Care-team source</text><text class="d-s" x="955.0" y="412.0" text-anchor="middle">Phase 2 · TBD (CDP-1209)</text><rect class="d-p2" x="830" y="450" width="250" height="56" rx="6"/><text class="d-t" x="955.0" y="474.0" text-anchor="middle">Document source</text><text class="d-s" x="955.0" y="492.0" text-anchor="middle">Phase 2 · TBD (CDP-1209)</text><rect class="d-out" x="475" y="500" width="200" height="56" rx="6"/><text class="d-t" x="575.0" y="524.0" text-anchor="middle">Arize AX (SaaS)</text><text class="d-s" x="575.0" y="542.0" text-anchor="middle">traces · experiments</text><path class="sl-l" d="M240 68H328" marker-end="url(#ah3)"/><text class="sl-a" x="284" y="60" text-anchor="middle">IF-11</text><path class="sl-l" d="M240 198H358" marker-end="url(#ah3)"/><text class="sl-a" x="299" y="190" text-anchor="middle">IF-01 · HTTPS</text><path class="sl-l" d="M240 328H300V232H358" marker-start="url(#ah3)" marker-end="url(#ah3)"/><text class="sl-a" x="245" y="350" text-anchor="start">IF-02 · OIDC</text><path class="sl-l" d="M430 96V188" marker-end="url(#ah3)"/><text class="sl-a" x="438" y="128" text-anchor="start">IF-10 · deploy</text><path class="sl-l" d="M675 188V98" marker-end="url(#ah3)"/><text class="sl-a" x="683" y="128" text-anchor="start">IF-07 · Vertex API</text><path class="sl-l" d="M435 246V338" marker-start="url(#ah3)" marker-end="url(#ah3)"/><text class="sl-a" x="427" y="296" text-anchor="end">IF-03 · SQL</text><path class="sl-l" d="M620 246V300H470V338" marker-start="url(#ah3)" marker-end="url(#ah3)"/><text class="sl-a" x="545" y="292" text-anchor="middle">IF-04 · queue</text><path class="sl-l" d="M700 246V338" marker-end="url(#ah3)"/><text class="sl-a" x="708" y="296" text-anchor="start">IF-08</text><path class="sl-l" d="M750 205H800V195H853" marker-end="url(#ah3)"/><text class="sl-a" x="806" y="186" text-anchor="start">IF-05</text><path class="sl-l" d="M750 232H800V275H853" marker-end="url(#ah3)"/><text class="sl-a" x="806" y="266" text-anchor="start">IF-06</text><path class="sl-l sl-dash" d="M828 398H772" marker-end="url(#ah3)"/><text class="sl-a" x="800" y="390" text-anchor="middle">IF-13</text><path class="sl-l sl-dash" d="M828 478H720V432" marker-end="url(#ah3)"/><text class="sl-a" x="776" y="470" text-anchor="middle">IF-14</text><path class="sl-l" d="M575 432V498" marker-end="url(#ah3)"/><text class="sl-a" x="583" y="470" text-anchor="start">IF-09 · OTLP, redacted</text></svg></div>
+    <figcaption>Nothing leaves the platform project except redacted telemetry to Arize AX (IF-09). BigQuery is read-only and never mirrored. Devin reaches GitHub, not the platform. IF-12 (CI experiments to Arize) and IF-15 (audit export) are listed in the catalogue only.</figcaption>
+  </figure>
+
+  <h3 class="sect">Interface catalogue</h3>
+  <div class="tbl scroll"><table>
+    <thead><tr><th scope="col">ID</th><th scope="col">From → to</th><th scope="col">Pattern and protocol</th><th scope="col">Authentication</th><th scope="col">Data and limits</th><th scope="col">When it fails</th><th scope="col">Phase</th><th scope="col">Stories</th></tr></thead>
+    <tbody>
+      <tr><td>IF-01</td><td>Clinician browser → Run &amp; review API</td><td>REST/JSON over HTTPS, versioned <code>/v1</code></td><td>IAP session; roles from IdP groups</td><td>Worklist, runs, review actions</td><td>Plain-language errors; stale revision → 409 and refresh</td><td>MVP</td><td>702, 801, 803, 809</td></tr>
+      <tr><td>IF-02</td><td>Org IdP → IAP → API</td><td>OIDC; API verifies the signed IAP header</td><td>Org SSO</td><td>Identity, groups</td><td>No access; no local fallback accounts</td><td>MVP</td><td>901</td></tr>
+      <tr><td>IF-03</td><td>API ↔ Postgres</td><td>Cloud SQL connector, TLS, transactional writes</td><td>IAM database auth, API service account</td><td>Runs, review actions, audit events</td><td>Request fails as a whole; nothing partial is committed</td><td>MVP</td><td>204, 702, 902</td></tr>
+      <tr><td>IF-04</td><td>Worker ↔ Postgres</td><td>Job queue: poll, <code>FOR UPDATE SKIP LOCKED</code>, revision-checked commit</td><td>IAM database auth, worker service account</td><td>Jobs, snapshots, audit</td><td>Crash → claim timeout → job reclaimed; stale job → no-op</td><td>MVP</td><td>703, 704</td></tr>
+      <tr><td>IF-05</td><td>Worker → BigQuery P views</td><td>Parameterized SQL via BigQuery API; partition filter; maximum bytes billed</td><td>Worker SA: dataViewer on the views dataset, jobUser in own project; VPC-SC ingress/egress rules</td><td>Tree A columns only; one query set per run</td><td>30 s timeout, 2 retries → source unavailable → no recommendation</td><td>MVP dev dataset · Phase 2 real</td><td>304, 1204</td></tr>
+      <tr><td>IF-06</td><td>Worker → BigQuery C views</td><td>Same as IF-05</td><td>Same as IF-05</td><td>Tree A columns only</td><td>Same as IF-05</td><td>MVP dev dataset · Phase 2 real</td><td>305, 1204</td></tr>
+      <tr><td>IF-07</td><td>Worker → Vertex AI (ADK)</td><td>HTTPS regional endpoint; token and runtime budget per step</td><td>Worker SA with Vertex AI user role; inside VPC-SC</td><td>Bounded document excerpts only</td><td>60 s timeout, 1 retry → evidence unresolved</td><td>MVP</td><td>501, 502</td></tr>
+      <tr><td>IF-08</td><td>Worker → Cloud Storage</td><td>JSON API; object versioning; hash checked on read</td><td>Worker SA, object viewer</td><td>Tree and skill bundles; synthetic documents</td><td>Hash mismatch → bundle or document rejected</td><td>MVP</td><td>604, 307</td></tr>
+      <tr><td>IF-09</td><td>API, worker → Arize AX</td><td>OTLP over HTTPS through allowlist exporter, batched</td><td>AX key in Secret Manager, one per space</td><td>Structural spans; content only from synthetic dev runs</td><td>Never blocks a run; spans dropped after retry</td><td>MVP</td><td>1304, 1001</td></tr>
+      <tr><td>IF-10</td><td>GitHub Actions → Artifact Registry, Cloud Run</td><td>Build, push, deploy; manual approval for staging</td><td>Workload Identity Federation, no keys</td><td>Images, bundle hashes</td><td>Previous revision keeps serving</td><td>MVP</td><td>202, 208</td></tr>
+      <tr><td>IF-11</td><td>Devin → GitHub</td><td>GitHub App; pull requests only</td><td>Scoped app permissions; no merge; dev-project credentials only</td><td>Code; synthetic data</td><td>—</td><td>MVP</td><td>1301, 1302</td></tr>
+      <tr><td>IF-12</td><td>CI eval lanes → Arize AX</td><td>AX SDK experiments</td><td>CI key for <code>cdp-dev</code>; release-job key for <code>cdp-holdout</code></td><td>Datasets, experiment results</td><td>Eval-lane failure blocks the merge</td><td>MVP</td><td>1305, 1403</td></tr>
+      <tr><td>IF-13</td><td>Care-team source → authorization</td><td>To be decided once CDP-1209 names the system (e.g., BigQuery view or FHIR CareTeam)</td><td>—</td><td>Care assignments</td><td>Access denied; audited break-glass</td><td>Phase 2</td><td>905</td></tr>
+      <tr><td>IF-14</td><td>Document source → worker</td><td>To be decided once CDP-1209 names the system</td><td>—</td><td>Clinical documents</td><td>Evidence unresolved</td><td>Phase 2</td><td>307, 309</td></tr>
+      <tr><td>IF-15</td><td>Postgres audit → Cloud Storage Bucket Lock</td><td>Hourly batch export plus chain verification</td><td>Export service account</td><td>Audit events</td><td>Verification failure pages on-call</td><td>Phase 2</td><td>903</td></tr>
+      <tr><td>—</td><td>EHR</td><td>None. SMART on FHIR launch or CDS Hooks is decided after Phase 2.</td><td>—</td><td>—</td><td>Clinicians act in the EHR themselves; no writeback</td><td>Not planned</td><td>—</td></tr>
+    </tbody>
+  </table></div>
+  <p class="assume"><strong>Integration rules:</strong> every interface is read-only toward clinical systems. Every call has a timeout and a budget, and any failure becomes an explicit state that fails closed. Patient scope comes from the run, never from tool arguments. Views and APIs are versioned (<code>cdp_evidence_v1</code>, <code>/v1</code>), and each interface has a contract test in the integration lane. Timeouts are starting values, to be tuned from week-4 latency measurements.</p>
+</section>
+
+<section class="block" id="build-loop">
+  <h2>How the agent gets built and improved</h2>
+  <p class="sub">The loop is the product. Teams new to agents usually tune prompts by eye. This loop makes every change an experiment that CI measures and a human approves.</p>
+  <ol class="loop">
+    <li><strong>Story with acceptance tests</strong>A human writes the failing tests and names the eval cases. Devin never writes its own oracle.</li>
+    <li><strong>Devin session in dev</strong>Synthetic data only. Knowledge and Playbooks carry the architecture rules.</li>
+    <li><strong>Fast and integration lanes</strong>Types, unit and property tests, tree compiler, import rules, then end to end in docker compose.</li>
+    <li><strong>Agent-eval lane</strong>AX experiment on the golden and adversarial sets against the <code>main</code> baseline, with deltas posted to the PR.</li>
+    <li><strong>Human review</strong>CODEOWNERS: the clinical lead on trees and golden sets, two humans on executor, validator and authz.</li>
+    <li><strong>Merge and nightly</strong>Full golden set on the live model, repeated three times to show variance, plus fault injection and a cost report.</li>
+    <li><strong>Release lane</strong>Human-triggered deploy to staging, with bundle hashes recorded. The held-out set is used only at the Day-70 gate.</li>
+    <li><strong>Friday demo</strong>The same five synthetic cases every week, plus the scorecard.</li>
+    <li class="back"><strong>Failure → regression case</strong>Tag the trace, classify the failure, add the case by PR with clinical approval, then back to step 1.</li>
+  </ol>
+
+  <div class="twocol" style="margin-top:28px">
+    <div>
+      <h3 style="margin-bottom:12px">Arize AX setup</h3>
+      <div class="tbl scroll"><table>
+        <thead><tr><th scope="col">Area</th><th scope="col">Setup</th></tr></thead>
+        <tbody>
+          <tr><td>Tracing</td><td>ADK OpenInference instrumentation plus custom spans, tagged with <code>git_sha</code>, <code>bundle_hash</code>, <code>skill_version</code>, <code>model_id</code></td></tr>
+          <tr><td>Datasets</td><td><code>golden</code> (≥40 clinician-reviewed synthetic cases by day 28), <code>adversarial</code>, <code>regressions</code>, <code>holdout</code> (frozen, restricted)</td></tr>
+          <tr><td>Evaluators</td><td>Code-based: field match, unit, timestamp, citation exists, abstention correct, <strong>false acceptance</strong>. No LLM judge on safety metrics.</td></tr>
+          <tr><td>Experiments</td><td>One per PR that touches a skill, prompt or model config, named by SHA, compared with <code>main</code></td></tr>
+          <tr><td>Prompts</td><td>Git is the source of truth; Playground is for exploration only</td></tr>
+          <tr><td>Monitors</td><td>Abstention, validator rejections, citation failures, p95 latency and tokens per run, by skill version</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div>
+      <h3 style="margin-bottom:12px">Guardrails for AI-written code</h3>
+      <div class="tbl scroll"><table>
+        <thead><tr><th scope="col">Rule</th><th scope="col">Why</th></tr></thead>
+        <tbody>
+          <tr><td>Devin reaches the dev project only</td><td>No patient data or staging/prod credentials in a vendor sandbox</td></tr>
+          <tr><td>Devin opens PRs, never merges</td><td>A human is accountable for every change</td></tr>
+          <tr><td>Test oracles protected by CODEOWNERS</td><td>Stops the agent “fixing” a safety failure by editing the expected answer</td></tr>
+          <tr><td>No access to <code>holdout</code></td><td>Prevents tuning against the Day-70 gate</td></tr>
+          <tr><td>PRs capped at 400 changed lines</td><td>Keeps review meaningful with 4× the PR volume</td></tr>
+          <tr><td><code>ai-authored</code> label, Jira key, session link</td><td>Traceability, and a revert-rate signal on the scorecard</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="team">
+  <h2>Team and what's needed</h2>
+  <p class="sub">The engineers own streams, but everyone reviews across boundaries. The lead also acts as agent-engineering coach and works about half hands-on.</p>
+  <div class="tbl scroll"><table>
+    <thead><tr><th scope="col">Role</th><th scope="col">Owns</th><th scope="col" class="num">Build pts</th><th scope="col" class="num">Test</th><th scope="col" class="num">Phase 2</th></tr></thead>
+    <tbody>{{TEAM_ROWS}}</tbody>
+  </table></div>
+
+  <h3 class="sect">People outside the team, booked on day 1</h3>
+  <div class="tbl scroll"><table>
+    <thead><tr><th scope="col">Who</th><th scope="col">Commitment</th><th scope="col">If they're late</th></tr></thead>
+    <tbody>
+      <tr><td>Product owner</td><td>Monday priorities (15 min), Friday demo (30 min), checkpoints on days 30, 60 and 70 (60 min each)</td><td>Stories can't be accepted, and “done” drifts into “merged”</td></tr>
+      <tr><td>Clinical lead (~0.5 FTE)</td><td>Wednesday case review (60 min); golden-set authoring ~4 h/week; Tree A expected paths signed by day 28; templates by day 28; UAT days 61–66</td><td>The walking skeleton at Day 30 has nothing approved to run. <strong>This is the critical dependency.</strong></td></tr>
+      <tr><td>Data team contact</td><td>P and C schemas and metadata access by day 10; access-pack review; ~2–4 h/week in weeks 1–4</td><td>Fixtures don't match reality, and the freshness gate slips</td></tr>
+      <tr><td>Security / privacy reviewer</td><td>Threat model review in week 4; Day 30 checkpoint; PHI-free verification in the test window</td><td>Phase 2 approval starts from zero</td></tr>
+      <tr><td>Regulatory counsel</td><td>Receives intended use on day 7; determination before Phase 2</td><td>Phase 2 can't touch real data</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="twocol" style="margin-top:24px">
+    <div class="decisions" style="margin-top:0">
+      <h3>Enablement for a first-time agentic team</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:8px">
+        <li><strong>Days 2–3 bootcamp:</strong> ADK and the hub/skill boundary; eval-driven development in AX (write the evaluator before the prompt); the Devin workflow and guardrails; clinical safety basics (missing is not negative, hazard log).</li>
+        <li><strong>Pairing:</strong> the lead pairs with each engineer on their first Devin-driven story and their first skill experiment.</li>
+        <li><strong>Thursday agent clinic (30 min):</strong> one real failure trace, one eval lesson, one Devin lesson.</li>
+        <li><strong>Reading list:</strong> ADK docs for the pinned version, AX datasets and experiments, the HLD, and this plan.</li>
+      </ul>
+    </div>
+    <div class="decisions" style="margin-top:0">
+      <h3>Tooling and budget</h3>
+      <ul style="margin:0;padding-left:18px;display:grid;gap:8px">
+        <li>Devin seats for all 5, with Knowledge and Playbooks set up in week 1</li>
+        <li>Arize AX with spaces <code>cdp-dev</code>, <code>cdp-staging</code>, <code>cdp-holdout</code> and role-scoped keys</li>
+        <li>GCP dev and staging projects with Vertex AI quota, plus a <strong>monthly model-spend cap</strong> for eval lanes, tracked on the scorecard</li>
+        <li>GitHub: Actions minutes, merge queue, CODEOWNERS, branch protection</li>
+        <li>Jira: import the CSV, one-week sprints, “accepted in demo” as the final status</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="watch">
+  <h2>Watch-outs for a first-time agentic team</h2>
+  <p class="sub">These are the failure modes that sink first agent projects, with the guardrail for each and the scorecard signal that shows it's happening.</p>
+  <div class="tbl scroll"><table>
+    <thead><tr><th scope="col">Trap</th><th scope="col">What it looks like</th><th scope="col">Guardrail in this plan</th><th scope="col">Early signal</th></tr></thead>
+    <tbody>
+      <tr><td>Logic creeping into prompts</td><td>“If creatinine is above…” appears in skill instructions</td><td>Thresholds only in YAML/Python; import linter; Thursday clinic reviews prompt diffs</td><td>Prompt diffs mentioning clinical thresholds</td></tr>
+      <tr><td>Tuning by eye</td><td>“It looks better on these three examples”</td><td>No skill or prompt merge without an AX experiment against <code>main</code></td><td>Skill PRs without an experiment link</td></tr>
+      <tr><td>Averages hide the dangerous cases</td><td>94% accuracy celebrated while two wrong values were accepted</td><td>False acceptance is a hard zero gate, reported separately</td><td>False acceptances above 0 on any slice</td></tr>
+      <tr><td>Golden set too easy</td><td>All happy-path cases written by engineers</td><td>Clinician-reviewed; adversarial set; grows from failures; frozen held-out set</td><td>Golden set not growing week over week</td></tr>
+      <tr><td>Nondeterminism surprise</td><td>Flaky CI; same input, different output; “temperature 0 should fix it”</td><td>Recorded responses in tests; nightly runs repeated three times; snapshots store outputs</td><td>Flaky-test count; eval variance</td></tr>
+      <tr><td>Over-agentification</td><td>Proposals for a planner agent, agent-to-agent calls, free tool use</td><td>One skill, bounded tools, the hub controls everything; any new agent needs an ADR</td><td>New agent or tool names in PRs</td></tr>
+      <tr><td>The model never says “I don't know”</td><td>Plausible values extracted from documents that don't contain them</td><td>Abstention cases in golden set; unresolved counts as a correct outcome</td><td>Abstention rate near 0%</td></tr>
+      <tr><td>Context and cost blow-ups</td><td>Whole documents in prompts; retries multiply tokens</td><td>Size limits, token and retry budgets, cost per run on the scorecard</td><td>Tokens per run trending up</td></tr>
+      <tr><td>Framework churn</td><td>Upgrading ADK mid-sprint to follow a blog post</td><td>Pinned versions; upgrades go through the eval lane as their own PR</td><td>Unplanned dependency PRs</td></tr>
+      <tr><td>Devin games the tests</td><td>Tests edited alongside code; assertions loosened; huge PRs</td><td>Protected oracles, human-written acceptance tests, 400-line cap</td><td>Revert rate; test-only diffs from Devin</td></tr>
+      <tr><td>Review becomes the bottleneck</td><td>Twenty open PRs, rubber-stamp approvals</td><td>Small PRs, WIP limit of 2 Devin sessions per engineer, review time on scorecard</td><td>Median review time above 1 day</td></tr>
+      <tr><td>PHI leaks through telemetry</td><td>Patient values in exception messages or span attributes</td><td>Allowlist exporter, CI leak test, synthetic-only MVP</td><td>Leak test failures</td></tr>
+      <tr><td>Chat demos instead of the pipeline</td><td>Impressive notebook or chat output that skips validation and audit</td><td>Demos run only through the real pipeline, with the audit trail on screen</td><td>A demo that can't show its audit record</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="block" id="cadence">
+  <h2>Cadence, progress and checkpoints</h2>
+  <p class="sub">Progress is shown as working software and eval numbers, never as percent complete. A story is done when the product owner accepts it in the Friday demo, not when it merges.</p>
+
+  <div class="twocol">
+    <div>
+      <h3 style="margin-bottom:12px">Weekly rhythm</h3>
+      <div class="tbl scroll"><table>
+        <thead><tr><th scope="col">When</th><th scope="col">What</th><th scope="col">Output</th></tr></thead>
+        <tbody>
+          <tr><td class="nowrap">Mon · 30 min</td><td>Planning: product owner orders stories; humans write acceptance tests; Devin sessions assigned</td><td>Iteration goal in one sentence</td></tr>
+          <tr><td class="nowrap">Daily · 15 min</td><td>Stand-up around the demo case: does it still run end to end?</td><td>Blockers named</td></tr>
+          <tr><td class="nowrap">Tue · 30 min</td><td>Access and dependency sync with data team and security</td><td>Gate status: green, amber, red</td></tr>
+          <tr><td class="nowrap">Wed · 60 min</td><td>Clinical case review with clinical lead</td><td>New golden cases; expected-path decisions</td></tr>
+          <tr><td class="nowrap">Thu · 30 min</td><td>Agent clinic</td><td>Failure classes; eval and Devin lessons</td></tr>
+          <tr><td class="nowrap">Fri · 30 min</td><td><strong>Product owner demo</strong> on the golden patient journey</td><td>Stories accepted or rejected live; scorecard</td></tr>
+        </tbody>
+      </table></div>
+      <p class="assume"><strong>Demo rules:</strong> run the same five synthetic cases every week (positive culture, negative culture, pending culture, stale creatinine, ambiguous document). Always go through the real pipeline, never slides. Always show at least one case that correctly produces <em>no</em> recommendation. As features land, the product owner watches the same cases light up.</p>
+    </div>
+    <div>
+      <h3 style="margin-bottom:12px">One-page scorecard, updated every Friday</h3>
+      <div class="tbl scroll"><table>
+        <thead><tr><th scope="col">Signal</th><th scope="col">Source</th></tr></thead>
+        <tbody>
+          <tr><td>Pipeline stages live end to end: P, C, snapshot, validator, executor, review, audit</td><td>Demo</td></tr>
+          <tr><td>Tree A approved paths passing / total</td><td>CI</td></tr>
+          <tr><td>Extraction trend: false acceptances, citation validity, field accuracy, abstention</td><td>AX experiments</td></tr>
+          <tr><td>Golden-set size and failure classes</td><td>AX datasets</td></tr>
+          <tr><td>Cost and p95 latency per run</td><td>AX monitors</td></tr>
+          <tr><td>Stories accepted in demo vs planned (burn-up)</td><td>Jira</td></tr>
+          <tr><td>Hazard controls verified / identified</td><td>Hazard log</td></tr>
+          <tr><td>Access and dependency gates</td><td>Tuesday sync</td></tr>
+          <tr><td>Devin health: PRs merged, median review time, revert rate, PR size</td><td>GitHub</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <h3 class="sect">Product owner checkpoints</h3>
+  <div class="cards">
+    <div class="card key" id="cp30">
+      <span class="when">Day 30</span>
+      <h3>Is the skeleton real, and is Devin actually helping?</h3>
+      <h4>Show</h4>
+      <ul>
+        <li>POST a Tree A run in dev and get a recorded path and audit trail</li>
+        <li>All Tree A paths passing on fixtures, signed by the clinical lead</li>
+        <li>P adapter on the BigQuery dev dataset; C adapter in progress</li>
+        <li>AX baseline scorecard from the spike skill on golden set v1</li>
+        <li>All CI lanes and guardrails enforced</li>
+        <li>Hazard log v1; intended use with counsel; freshness gate numbers</li>
+      </ul>
+      <h4>Decide</h4>
+      <ul>
+        <li><strong>Continue</strong> if accepted points are ≥ 85% of plan</li>
+        <li><strong>Re-scope</strong> with the cut list if below 85%, or if the Devin lift is under 1.1×</li>
+        <li><strong>Pull the stretch forward:</strong> if real BigQuery access is approved and counsel is engaged, move CDP-1204 and the PHI access log into I6–I7</li>
+        <li><strong>Change Tree A</strong> if p95 load lag exceeds its freshness limits</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="when">Day 60 · code freeze</span>
+      <h3>Feature-complete in staging?</h3>
+      <h4>Show</h4>
+      <ul>
+        <li>All 25 UAT cases runnable in staging through the review screen</li>
+        <li>Extraction scorecard against pre-registered thresholds</li>
+        <li>Fault-injection suite green</li>
+        <li>Test plan, UAT schedule and clinicians confirmed</li>
+      </ul>
+      <h4>Decide</h4>
+      <ul>
+        <li><strong>Enter the test window</strong> as planned</li>
+        <li><strong>Or</strong> use up to 3 test days for fixes and shrink UAT scope. Don't extend the build.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="when">Day 70</span>
+      <h3>Shadow-ready?</h3>
+      <h4>Show</h4>
+      <ul>
+        <li>Exit criteria scored, with evidence links</li>
+        <li>UAT findings and held-out eval report</li>
+        <li>Residual risks and Phase 2 re-estimate from access status</li>
+      </ul>
+      <h4>Decide</h4>
+      <ul>
+        <li><strong>Start Phase 2</strong> (real data, shadow mode)</li>
+        <li><strong>Fix and retest</strong> with named gaps and dates</li>
+        <li><strong>Stop or re-think</strong> if the extraction skill can't meet thresholds</li>
+      </ul>
+    </div>
+  </div>
+  <p class="assume"><strong>Cut list, in order, if Day 30 shows a shortfall:</strong> screen iteration (CDP-808); conflict detection falls back to “any second candidate goes to review” (CDP-404); document retrieval uses synthetic files in Cloud Storage (CDP-307); the C adapter reduced to the culture concept only (CDP-305). Last resort: take extraction out of Tree A's clinical path and keep improving the skill behind the eval gate. Never cut: kill switch, audit chain, fail-closed state, approval gating, the PHI-leak test, or protected oracles.</p>
+</section>
+
+<section class="block" id="timeline">
+  <h2>Timeline and capacity</h2>
+  <p class="sub">One-week iterations, so Devin's pace doesn't outrun feedback. Days 57–60 are deliberately left unplanned as buffer.</p>
+  <div class="tbl scroll"><table>
+    <thead><tr><th scope="col" class="num">When</th><th scope="col">Days</th><th scope="col">Theme</th><th scope="col">Work</th><th scope="col">Friday demo</th></tr></thead>
+    <tbody>{{ITER_ROWS}}</tbody>
+  </table></div>
+
+  <h3 class="sect">Points by owner and iteration</h3>
+  <p class="sub" style="margin-bottom:12px">Build capacity is {{CAP_TOTAL}} points against {{N_BUILD_POINTS}} planned, a {{BUFFER}}% buffer. That buffer is thin and depends on the Devin lift being real, which is why Day 30 measures it. Amber cells exceed steady-state capacity by more than 25%: weeks 1–2 are foundation-heavy, and some of that work is configuration and documentation Devin can draft. Phase 2 points aren't in the 70 days.</p>
+  {{CAPACITY}}
+</section>
+
+<section class="block" id="backlog">
+  <h2>Epics and stories</h2>
+  <p class="sub">The same backlog is in <code>clinical-decision-platform-mvp-jira.csv</code>, next to the HLD. Import it with <em>Issue ID</em> and <em>Parent ID</em> mapped. Phase 2 stories import without a sprint and carry the <code>phase-2</code> label.</p>
+  <div class="filters" role="group" aria-label="Filter stories">
+    <span class="fl">Owner</span>
+    <button type="button" id="f-all" data-kind="owner" data-filter="all" aria-pressed="true">All</button>
+    <button type="button" id="f-lead" data-kind="owner" data-filter="LEAD" aria-pressed="false">Lead</button>
+    <button type="button" id="f-e1" data-kind="owner" data-filter="E1" aria-pressed="false">E1</button>
+    <button type="button" id="f-e2" data-kind="owner" data-filter="E2" aria-pressed="false">E2</button>
+    <button type="button" id="f-e3" data-kind="owner" data-filter="E3" aria-pressed="false">E3</button>
+    <button type="button" id="f-e4" data-kind="owner" data-filter="E4" aria-pressed="false">E4</button>
+    <span class="sep" aria-hidden="true"></span>
+    <span class="fl">Phase</span>
+    <button type="button" id="p-all" data-kind="phase" data-filter="all" aria-pressed="false">All</button>
+    <button type="button" id="p-mvp" data-kind="phase" data-filter="70" aria-pressed="true">70-day</button>
+    <button type="button" id="p-p2" data-kind="phase" data-filter="p2" aria-pressed="false">Phase 2</button>
+    <span class="count" id="f-count" aria-live="polite"></span>
+  </div>
+  {{EPICS}}
+</section>
+
+<section class="block" id="findings">
+  <h2>Appendix: HLD v1.0 review findings</h2>
+  <p class="sub">The original review of the HLD, updated for BigQuery sources and the Postgres job queue. Each finding links to the stories that address it; P2 marks work deferred to Phase 2.</p>
+  {{FINDINGS}}
+</section>
+
+<footer>Clinical decision platform · 70-day MVP plan for Tree A. This review covers design, not legal or regulatory advice; the regulatory determination belongs to qualified counsel. Clinical codes, thresholds and cases are illustrative until the clinical lead approves them. Velocity figures are planning assumptions, to be replaced by measured values at Day 30.</footer>
+</main>
+</div>
+
+<script>
+(function(){
+  var state = { owner: 'all', phase: '70' };
+  var buttons = document.querySelectorAll('.filters button');
+  var rows = document.querySelectorAll('table.stories tbody tr');
+  var epics = document.querySelectorAll('section.epic');
+  var count = document.getElementById('f-count');
+  function apply(){
+    var shown = 0, pts = 0;
+    rows.forEach(function(r){
+      var okO = state.owner === 'all' || r.dataset.owner === state.owner;
+      var ph = r.dataset.phase;
+      var okP = state.phase === 'all' || (state.phase === '70' ? ph !== 'p2' : ph === 'p2');
+      var on = okO && okP;
+      r.hidden = !on;
+      if (on) { shown++; pts += parseInt(r.children[3].textContent, 10) || 0; }
+    });
+    epics.forEach(function(e){ e.hidden = !e.querySelector('tbody tr:not([hidden])'); });
+    buttons.forEach(function(b){ b.setAttribute('aria-pressed', String(state[b.dataset.kind] === b.dataset.filter)); });
+    count.textContent = shown + ' stories · ' + pts + ' pts';
+  }
+  buttons.forEach(function(b){ b.addEventListener('click', function(){ state[b.dataset.kind] = b.dataset.filter; apply(); }); });
+  apply();
+})();
+</script>

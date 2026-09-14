@@ -1,0 +1,296 @@
+<title>Tree A System Overview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --ground:#F2F5F4;--surface:#FFFFFF;--sunk:#E8EEEC;--ink:#13232B;--muted:#52646C;--line:#D3DDDB;
+  --accent:#0A6360;--accent-soft:#DDEEEB;--on-accent:#FFFFFF;
+  --det:#0A6360;--det-soft:#DDEEEB;--nd:#935400;--nd-soft:#FCEFD8;
+  --sans:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --ground:#0D1618;--surface:#132022;--sunk:#0F1B1D;--ink:#E2EBE9;--muted:#9BAFAD;--line:#253739;
+  --accent:#62C3B9;--accent-soft:#16312F;--on-accent:#0D1618;--det:#62C3B9;--det-soft:#16312F;--nd:#E6AE58;--nd-soft:#33250F;
+}}
+:root[data-theme="dark"]{
+  --ground:#0D1618;--surface:#132022;--sunk:#0F1B1D;--ink:#E2EBE9;--muted:#9BAFAD;--line:#253739;
+  --accent:#62C3B9;--accent-soft:#16312F;--on-accent:#0D1618;--det:#62C3B9;--det-soft:#16312F;--nd:#E6AE58;--nd-soft:#33250F;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font:15px/1.55 var(--sans)}
+.wrap{max-width:900px;margin:0 auto;padding-inline:24px;padding-block:36px 60px}
+h1,h2,h3{text-wrap:balance;margin:0}
+.eyebrow{font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+h1{font-weight:800;font-size:32px;letter-spacing:-.02em;margin:10px 0 8px}
+.lead{color:var(--muted);font-size:16px;max-width:70ch;margin:0}
+h2{font-weight:800;font-size:20px;margin:0 0 10px}
+h3{font-weight:700;font-size:14px}
+section{margin-top:34px;padding-top:22px;border-top:1px solid var(--line)}
+p{margin:0 0 8px}
+code{font:12.5px var(--mono);background:var(--sunk);padding:1px 4px;border-radius:3px}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;margin-top:14px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:14px;height:14px;border-radius:3px;display:inline-block}
+.sw-det{background:var(--det-soft);border:1.5px solid var(--det)}
+.sw-nd{background:var(--nd-soft);border:1.5px solid var(--nd)}
+figure{margin:16px 0 0}
+.diagram{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px}
+.diagram svg{display:block;width:100%;min-width:640px;height:auto}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:8px;max-width:80ch}
+.d-det{fill:var(--det-soft);stroke:var(--det);stroke-width:1.4}
+.d-nd{fill:var(--nd-soft);stroke:var(--nd);stroke-width:1.4}
+.d-out{fill:var(--surface);stroke:var(--line);stroke-dasharray:3 3}
+.d-t{fill:var(--ink);font:600 12.5px var(--sans)}
+.d-s{fill:var(--muted);font:400 10.5px var(--sans)}
+.d-l{fill:none;stroke:var(--muted);stroke-width:1.4}
+.d-a{fill:var(--muted);font:600 10px var(--mono)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin-top:6px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:600 10.5px var(--mono);text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:var(--sunk)}
+td:first-child{font-weight:600;white-space:nowrap}
+.tbl{background:var(--surface);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:640px){.cols{grid-template-columns:1fr}}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
+.box.det{border-color:var(--det)}
+.box.nd{border-color:var(--nd)}
+.box h3{margin-bottom:8px}
+.box ul{margin:0;padding-left:18px;display:grid;gap:5px;font-size:13.5px}
+.pagebreak{page-break-before:always}
+.tag{display:inline-block;font:600 10px var(--mono);padding:2px 6px;border-radius:3px;margin-left:6px;vertical-align:1px}
+.tag-det{color:var(--det);background:var(--det-soft)}
+.tag-nd{color:var(--nd);background:var(--nd-soft)}
+.trav{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:10px}
+.trav li{display:grid;grid-template-columns:26px 1fr auto;gap:12px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:11px 14px}
+.trav .n{width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--on-accent);font:700 12px/24px var(--mono);text-align:center}
+.trav .body strong{display:block;font-size:14px;margin-bottom:2px}
+.trav .val{font:600 13px var(--mono);color:var(--ink)}
+.trav .body .m{color:var(--muted);font-size:12.5px}
+.trav .who{align-self:center}
+footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted)}
+@media print{body{background:#fff}.wrap{max-width:none;padding:0 12mm}section{break-inside:avoid}}
+</style>
+
+<div class="wrap">
+<p class="eyebrow">Tree A · Clinical Decision Support · System Overview</p>
+<h1>Deterministic pipeline, one bounded AI step</h1>
+<p class="lead">A clinical decision tree evaluates known evidence with fixed, testable logic. An LLM (via Google ADK) is used for exactly one job — turning documents, images and free text into cited candidate values. It never decides anything clinical.</p>
+
+<section>
+<h2>1 · Architecture: what's deterministic, what isn't</h2>
+<figure>
+<div class="diagram">
+<svg viewBox="0 0 900 380" role="img" aria-labelledby="t1 d1">
+<title id="t1">Deterministic vs non-deterministic architecture</title>
+<desc id="d1">The run and review API, Postgres store, validator, and tree executor are deterministic Python. The ADK orchestrator and its tools (RLM and LightRAG for documents and images, plus a BigQuery adapter) sit between evidence sources and the validator. Only the ADK orchestrator and RLM/LightRAG are non-deterministic; everything else, including the BigQuery adapter, is deterministic.</desc>
+<defs><marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path fill="currentColor" d="M0 0L10 5L0 10z" style="color:var(--muted)"/></marker></defs>
+
+<rect class="d-out" x="20" y="20" width="180" height="56" rx="6"/>
+<text class="d-t" x="110" y="44" text-anchor="middle">Clinician</text>
+<text class="d-s" x="110" y="62" text-anchor="middle">review screen</text>
+
+<rect class="d-det" x="240" y="20" width="180" height="56" rx="6"/>
+<text class="d-t" x="330" y="44" text-anchor="middle">Run &amp; Review API</text>
+<text class="d-s" x="330" y="62" text-anchor="middle">Python · deterministic</text>
+
+<rect class="d-det" x="460" y="20" width="180" height="56" rx="6"/>
+<text class="d-t" x="550" y="44" text-anchor="middle">Postgres</text>
+<text class="d-s" x="550" y="62" text-anchor="middle">runs · audit · queue</text>
+
+<rect class="d-det" x="240" y="140" width="180" height="60" rx="6"/>
+<text class="d-t" x="330" y="164" text-anchor="middle">Validator</text>
+<text class="d-s" x="330" y="182" text-anchor="middle">type · unit · freshness · citation</text>
+
+<rect class="d-det" x="240" y="240" width="180" height="60" rx="6"/>
+<text class="d-t" x="330" y="264" text-anchor="middle">Tree executor</text>
+<text class="d-s" x="330" y="282" text-anchor="middle">pure function · no I/O · no LLM</text>
+
+<rect class="d-nd" x="460" y="140" width="410" height="66" rx="6"/>
+<text class="d-t" x="475" y="164">ADK orchestrator</text>
+<text class="d-s" x="475" y="182">routes missing evidence keys to a fixed tool set</text>
+<text class="d-s" x="475" y="196">non-deterministic · no branch authority</text>
+
+<rect class="d-det" x="460" y="240" width="130" height="56" rx="6"/>
+<text class="d-t" x="525" y="262" text-anchor="middle">BigQuery</text>
+<text class="d-t" x="525" y="277" text-anchor="middle">adapter</text>
+<text class="d-s" x="525" y="290" text-anchor="middle" style="font-size:9.5px">deterministic</text>
+
+<rect class="d-nd" x="610" y="240" width="260" height="56" rx="6"/>
+<text class="d-t" x="740" y="260" text-anchor="middle">RLM + LightRAG</text>
+<text class="d-s" x="740" y="277" text-anchor="middle">docs · images · free text · non-deterministic</text>
+
+<rect class="d-out" x="460" y="330" width="130" height="40" rx="6"/>
+<text class="d-t" x="525" y="354" text-anchor="middle" style="font-size:11.5px">BigQuery (P, C)</text>
+<rect class="d-out" x="610" y="330" width="260" height="40" rx="6"/>
+<text class="d-t" x="740" y="354" text-anchor="middle" style="font-size:11.5px">Documents · images · scans</text>
+
+<g class="d-l">
+<path d="M200 48H238" marker-end="url(#a1)"/>
+<path d="M420 48H458" marker-end="url(#a1)"/>
+<path d="M330 76V138" marker-end="url(#a1)"/>
+<path d="M330 200V238" marker-end="url(#a1)"/>
+<path d="M420 170H458" marker-end="url(#a1)"/>
+<path d="M525 206V238" marker-end="url(#a1)"/>
+<path d="M740 206V238" marker-end="url(#a1)"/>
+<path d="M525 296V328" marker-end="url(#a1)"/>
+<path d="M740 296V328" marker-end="url(#a1)"/>
+</g>
+<text class="d-a" x="335" y="128">candidates</text>
+</svg>
+</div>
+<figcaption>Non-deterministic components (amber) are contained between the evidence sources and the validator. Every candidate — from BigQuery or from RLM/LightRAG — passes the same deterministic checks before it reaches the executor. The executor and everything downstream of it never call an LLM.</figcaption>
+</figure>
+
+<div class="legend">
+<span><i class="sw sw-det"></i>Deterministic Python — same input, same output, always</span>
+<span><i class="sw sw-nd"></i>Non-deterministic — LLM inference, bounded and validated</span>
+</div>
+</section>
+
+<section>
+<h2>2 · Who does what: LLM (ADK) vs. deterministic code</h2>
+<div class="cols">
+<div class="box nd">
+<h3>Handled by the LLM <span class="tag tag-nd">ADK</span></h3>
+<ul>
+<li>Routing a missing evidence key to the right tool (structured → BigQuery adapter; unstructured → RLM/LightRAG)</li>
+<li>OCR and field extraction from scanned lab reports and images</li>
+<li>Extracting a typed value from free text, with a citation to the source span or region</li>
+<li>Abstaining when a value isn't clearly present</li>
+</ul>
+</div>
+<div class="box det">
+<h3>Handled by deterministic Python <span class="tag tag-det">no LLM</span></h3>
+<ul>
+<li>Which evidence a tree node requires, and when to fetch it</li>
+<li>Querying BigQuery (P, C) with parameterized, scoped reads</li>
+<li>Validating every candidate: type, unit, freshness, provenance, identity match</li>
+<li>Evaluating tree predicates and choosing the next node</li>
+<li>Review state, approval, audit chain, kill switch</li>
+<li>Explanations (fixed templates bound to recorded evidence and path)</li>
+</ul>
+</div>
+</div>
+<table class="tbl" style="margin-top:14px">
+<thead><tr><th>Question</th><th>Who answers it</th></tr></thead>
+<tbody>
+<tr><td>Is this value present in the document?</td><td>LLM (ADK/RLM) — extraction, with abstain option</td></tr>
+<tr><td>Is this value usable (fresh, correct unit, right patient)?</td><td>Deterministic validator — same rule for every source</td></tr>
+<tr><td>Which branch does this evidence lead to?</td><td>Deterministic executor — pure function, replayable</td></tr>
+<tr><td>Is the recommendation approved?</td><td>Human clinician — always, no exceptions</td></tr>
+</tbody>
+</table>
+</section>
+
+<div class="pagebreak"></div>
+
+<section style="margin-top:0;border-top:0;padding-top:0">
+<h2>3 · Outcome measurement</h2>
+<p>Two different things are measured, on purpose: whether the deterministic core is <em>correct</em> (it either is or isn't — tested, not measured on a curve), and whether the LLM extraction step is <em>good enough</em> (measured continuously, with a hard floor on the failure that matters).</p>
+
+<div class="cols">
+<div class="box det">
+<h3>Deterministic layer — pass/fail, not a score</h3>
+<ul>
+<li><strong>Path correctness:</strong> every clinician-approved Tree A path passes in CI, exactly, every time</li>
+<li><strong>Replay equality:</strong> re-running a completed case against its stored snapshot reproduces the identical path</li>
+<li><strong>Fail-closed rate:</strong> 0 recommendations issued on missing, pending, stale or conflicting evidence</li>
+<li><strong>Audit integrity:</strong> hash chain unbroken; no gaps between events</li>
+<li><strong>Kill switch:</strong> suspended bundle halts in-flight runs within 5 minutes</li>
+</ul>
+</div>
+<div class="box nd">
+<h3>LLM extraction layer — measured continuously (Arize AX)</h3>
+<ul>
+<li><strong>False acceptance — hard gate at zero:</strong> a wrong value accepted as fact never happens on the safety suite</li>
+<li><strong>Citation validity:</strong> 100% of accepted candidates cite a real, verifiable location in the source</li>
+<li><strong>Field accuracy:</strong> against a clinician-labeled, patient-disjoint held-out set — reported per evidence type (structured field, free text, OCR'd image), not as one blended number</li>
+<li><strong>Abstention correctness:</strong> the model says "not found" when it should, instead of guessing</li>
+<li><strong>Cost and latency per run:</strong> tokens, tool calls, p95 time — tracked so orchestration overhead doesn't silently grow</li>
+</ul>
+</div>
+</div>
+
+<h3 style="margin-top:18px">Why the two are never blended into one number</h3>
+<p style="max-width:75ch">A 95% blended accuracy figure can hide the one case that matters — a wrong lab value silently accepted as real. So the release gate is deliberately asymmetric: the deterministic core must be <strong>100% correct</strong> on every approved path (it's code, not a model — there's no reason to accept less), and the LLM layer is judged on a <strong>zero-tolerance floor for false acceptance</strong> plus a separate, honestly-reported accuracy trend. Passing on average is not a pass.</p>
+
+<table class="tbl" style="margin-top:12px">
+<thead><tr><th>Signal</th><th>Where it's tracked</th><th>Gate</th></tr></thead>
+<tbody>
+<tr><td>Tree path tests</td><td>CI, every commit</td><td>100% pass, or the build fails</td></tr>
+<tr><td>False acceptance</td><td>Arize AX experiment, every skill/prompt change</td><td>Zero, or the change doesn't merge</td></tr>
+<tr><td>Field accuracy by source type</td><td>Arize AX, held-out set at release</td><td>Pre-registered target, signed before the set is frozen</td></tr>
+<tr><td>Fault injection (crash, duplicate, concurrency)</td><td>Nightly + release</td><td>Zero duplicated committed transitions</td></tr>
+<tr><td>Clinician UAT</td><td>Test window, real users</td><td>No open critical usability issue</td></tr>
+</tbody>
+</table>
+</section>
+
+<div class="pagebreak"></div>
+
+<section style="margin-top:0;border-top:0;padding-top:0">
+<h2>4 · Worked example: one antibiotic through Tree A</h2>
+<p><strong>Synthetic case.</strong> Suspected urinary tract infection. Culture result is structured data in BigQuery (C); an allergy is only mentioned in a scanned discharge summary. This is the same case used in the review-screen mockups.</p>
+
+<figure>
+<div class="diagram">
+<svg viewBox="0 0 900 260" role="img" aria-labelledby="t2 d2">
+<title id="t2">Tree A traversal for one synthetic antibiotic case</title>
+<desc id="d2">Culture gate: positive, goes yes. Renal gate: creatinine 1.1 mg/dL is at or below 1.5, goes yes. Allergy gate: penicillin-class allergy found, goes yes. Outcome: recommend nitrofurantoin, avoid penicillin-class agents, mandatory clinician review.</desc>
+<defs><marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path fill="var(--muted)" d="M0 0L10 5L0 10z"/></marker></defs>
+<rect class="d-det" x="10" y="90" width="150" height="70" rx="6"/>
+<text class="d-t" x="85" y="116" text-anchor="middle">Culture gate</text>
+<text class="d-s" x="85" y="134" text-anchor="middle">result = positive</text>
+<text class="d-s" x="85" y="148" text-anchor="middle" style="font-weight:600">→ yes</text>
+
+<rect class="d-det" x="200" y="90" width="150" height="70" rx="6"/>
+<text class="d-t" x="275" y="116" text-anchor="middle">Renal gate</text>
+<text class="d-s" x="275" y="134" text-anchor="middle">creatinine 1.1 ≤ 1.5</text>
+<text class="d-s" x="275" y="148" text-anchor="middle" style="font-weight:600">→ yes</text>
+
+<rect class="d-det" x="390" y="90" width="150" height="70" rx="6"/>
+<text class="d-t" x="465" y="116" text-anchor="middle">Allergy gate</text>
+<text class="d-s" x="465" y="134" text-anchor="middle">penicillin-class found</text>
+<text class="d-s" x="465" y="148" text-anchor="middle" style="font-weight:600">→ yes</text>
+
+<rect class="d-out" x="580" y="80" width="300" height="90" rx="6" style="stroke:var(--accent);stroke-width:1.6;stroke-dasharray:none"/>
+<text class="d-t" x="730" y="104" text-anchor="middle">Outcome · mandatory review</text>
+<text class="d-t" x="730" y="124" text-anchor="middle" style="font-size:13px">Recommend nitrofurantoin</text>
+<text class="d-s" x="730" y="142" text-anchor="middle">avoid penicillin-class agents</text>
+<text class="d-s" x="730" y="156" text-anchor="middle">guideline A.5 · clinician approves</text>
+
+<g class="d-l"><path d="M160 125H198" marker-end="url(#a2)"/><path d="M350 125H388" marker-end="url(#a2)"/><path d="M540 125H578" marker-end="url(#a2)"/></g>
+</svg>
+</div>
+<figcaption>Every gate value came from evidence gathered before traversal started. The executor only reads the snapshot — it never queries a source or calls a model mid-traversal.</figcaption>
+</figure>
+
+<h3 style="margin-top:22px">Step by step, with the responsible component</h3>
+<ol class="trav">
+<li><span class="n">1</span><div class="body"><strong>Culture result needed</strong><span class="m">Evidence key <code>culture_result</code>, required by the culture gate</span></div><div class="who"><span class="tag tag-det">BigQuery adapter</span></div></li>
+<li><span class="n">2</span><div class="body"><strong>Query C (microbiology)</strong><span class="val">culture_result = positive</span><span class="m">Parameterized query, scoped to this patient/encounter; row hash + BigQuery job ID recorded</span></div><div class="who"><span class="tag tag-det">Deterministic</span></div></li>
+<li><span class="n">3</span><div class="body"><strong>Serum creatinine needed</strong><span class="val">serum_creatinine = 1.1 mg/dL</span><span class="m">Query P (labs); observed_at within the freshness window</span></div><div class="who"><span class="tag tag-det">BigQuery adapter</span></div></li>
+<li><span class="n">4</span><div class="body"><strong>Allergy class needed — not structured</strong><span class="m">Evidence key <code>allergy_class</code> has no BigQuery row; routes to document extraction</span></div><div class="who"><span class="tag tag-nd">ADK orchestrator</span></div></li>
+<li><span class="n">5</span><div class="body"><strong>Parse the scanned discharge summary</strong><span class="val">"rash after amoxicillin (2019)" → penicillin-class</span><span class="m">OCR + extraction, with a citation to page 2 of the document; abstains if not confidently present</span></div><div class="who"><span class="tag tag-nd">RLM + LightRAG</span></div></li>
+<li><span class="n">6</span><div class="body"><strong>Validate all three candidates</strong><span class="m">Unit, freshness, identity match and citation checked for the BigQuery values and the extracted value alike</span></div><div class="who"><span class="tag tag-det">Validator</span></div></li>
+<li><span class="n">7</span><div class="body"><strong>Snapshot assembled</strong><span class="m">All three evidence items accepted; frozen for this run</span></div><div class="who"><span class="tag tag-det">Deterministic</span></div></li>
+<li><span class="n">8</span><div class="body"><strong>Traverse the tree</strong><span class="m">Culture gate → yes, renal gate → yes, allergy gate → yes → outcome node</span></div><div class="who"><span class="tag tag-det">Tree executor</span></div></li>
+<li><span class="n">9</span><div class="body"><strong>Present for review</strong><span class="val">"Recommend nitrofurantoin, avoid penicillin-class"</span><span class="m">Template-filled from the recorded path; nothing generated freeform</span></div><div class="who"><span class="tag tag-det">Explanation template</span></div></li>
+<li><span class="n">10</span><div class="body"><strong>Clinician approves or rejects</strong><span class="m">The only step where judgment about the case itself is applied</span></div><div class="who"><span class="tag" style="background:var(--sunk);color:var(--ink)">Human</span></div></li>
+</ol>
+
+<h3 style="margin-top:22px">What would have changed the path</h3>
+<table class="tbl" style="margin-top:6px">
+<thead><tr><th>If instead</th><th>Result</th></tr></thead>
+<tbody>
+<tr><td>Culture still <code>pending</code></td><td>Culture gate can't evaluate → no recommendation, review reason "evidence unavailable" — never treated as negative</td></tr>
+<tr><td>Creatinine 1.8 mg/dL (above 1.5)</td><td>Renal gate → no → a different, renal-adjusted outcome node</td></tr>
+<tr><td>RLM abstains on the allergy extraction (text unclear)</td><td>Allergy gate can't evaluate → routed to clinician evidence review, not assumed "no allergy"</td></tr>
+<tr><td>Discharge summary text says "tolerates penicillin well"</td><td>Extraction returns no allergy found; validator still checks the citation is real before accepting that as evidence</td></tr>
+</tbody>
+</table>
+</section>
+
+<footer>Tree A system overview · illustrative codes, drug names and thresholds pending clinical sign-off. Companion to the full 70-day MVP plan (scope, team, timeline, backlog).</footer>
+</div>
